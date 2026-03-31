@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - NaijaExams</title>
+    
+    <!-- Auth & Guard Scripts (MUST load FIRST) -->
+    <script src="js/auth.js"></script>
+    <script src="js/guard.js"></script>
+    
+    <!-- Other scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/exam-data.js"></script>
+    <script src="js/result.js"></script>
+    <script src="js/cbt-engine.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/navigation.js"></script>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    
+    <!-- Navigation will be injected by navigation.js -->
+    
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        
+        <!-- Welcome Section -->
+        <div class="mb-6 sm:mb-8">
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                Welcome back, <span id="userName">Student</span>! 
+                <span class="text-xl sm:text-2xl">👋</span>
+            </h1>
+            <p class="text-sm sm:text-base text-gray-600 mt-1">
+                Continue your exam preparation journey
+            </p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            
+            <!-- Exams Taken -->
+            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Exams Taken</p>
+                        <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900" id="statExams">0</p>
+                    </div>
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clipboard-check text-blue-600 text-sm sm:text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Average Score -->
+            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Average Score</p>
+                        <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900" id="statAverage">0%</p>
+                    </div>
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-green-100 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-chart-line text-green-600 text-sm sm:text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Best Score -->
+            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Best Score</p>
+                        <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900" id="statBest">0%</p>
+                    </div>
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-trophy text-yellow-600 text-sm sm:text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Study Streak -->
+            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Study Streak</p>
+                        <p class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900" id="statStreak">0<span class="text-sm font-normal text-gray-500"> days</span></p>
+                    </div>
+                    <div class="w-9 h-9 sm:w-12 sm:h-12 bg-purple-100 rounded-lg sm:rounded-xl flex items-center justify-center">
+                        <i class="fas fa-fire text-purple-600 text-sm sm:text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-4 sm:gap-6">
+            
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+                
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-xl p-4 sm:p-6">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Quick Actions</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        
+                        <a href="#exam-categories" class="flex flex-col items-center p-3 sm:p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition group">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                                <i class="fas fa-play text-white text-base sm:text-lg"></i>
+                            </div>
+                            <span class="font-semibold text-gray-900 text-xs sm:text-sm">Start Exam</span>
+                        </a>
+                        
+                        <a href="#recent-results" class="flex flex-col items-center p-3 sm:p-4 bg-green-50 rounded-xl hover:bg-green-100 transition group">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                                <i class="fas fa-chart-bar text-white text-base sm:text-lg"></i>
+                            </div>
+                            <span class="font-semibold text-gray-900 text-xs sm:text-sm">Results</span>
+                        </a>
+                        
+                        <a href="profile.html" class="flex flex-col items-center p-3 sm:p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition group">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                                <i class="fas fa-user text-white text-base sm:text-lg"></i>
+                            </div>
+                            <span class="font-semibold text-gray-900 text-xs sm:text-sm">Profile</span>
+                        </a>
+                        
+                        <a href="#" onclick="showToast('Feature coming soon!', 'info')" class="flex flex-col items-center p-3 sm:p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition group">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                                <i class="fas fa-book text-white text-base sm:text-lg"></i>
+                            </div>
+                            <span class="font-semibold text-gray-900 text-xs sm:text-sm">Materials</span>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                <!-- Exam Categories -->
+                <div id="exam-categories" class="bg-white rounded-xl p-4 sm:p-6">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Exam Categories</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        
+                        <!-- JAMB -->
+                        <a href="jamb.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-purple-50 transition border border-gray-100 hover:border-purple-200">
+                            <div class="w-10 h-10 rounded-lg badge-jamb flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-laptop text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-sm">JAMB</p>
+                                <p class="text-xs text-gray-500 truncate">UTME Practice</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </a>
+                        
+                        <!-- WAEC -->
+                        <a href="waec.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-green-50 transition border border-gray-100 hover:border-green-200">
+                            <div class="w-10 h-10 rounded-lg badge-waec flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-certificate text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-sm">WAEC</p>
+                                <p class="text-xs text-gray-500 truncate">SSCE Practice</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </a>
+                        
+                        <!-- NECO -->
+                        <a href="neco.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-orange-50 transition border border-gray-100 hover:border-orange-200">
+                            <div class="w-10 h-10 rounded-lg badge-neco flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-award text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-sm">NECO</p>
+                                <p class="text-xs text-gray-500 truncate">SSCE Practice</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </a>
+                        
+                        <!-- IJMB -->
+                        <a href="ijmb.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition border border-gray-100 hover:border-blue-200">
+                            <div class="w-10 h-10 rounded-lg badge-ijmb flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-university text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-sm">IJMB</p>
+                                <p class="text-xs text-gray-500 truncate">A-Level Program</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </a>
+                        
+                        <!-- Post-UTME -->
+                        <a href="post-utme.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-red-50 transition border border-gray-100 hover:border-red-200">
+                            <div class="w-10 h-10 rounded-lg badge-postutme flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-school text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-sm">Post-UTME</p>
+                                <p class="text-xs text-gray-500 truncate">Screening Exam</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </a>
+                        
+                        <!-- Other Exams -->
+                        <a href="other-exams.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-teal-50 transition border border-gray-100 hover:border-teal-200">
+                            <div class="w-10 h-10 rounded-lg badge-other flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-ellipsis-h text-white"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-sm">Others</p>
+                                <p class="text-xs text-gray-500 truncate">NABTEB, JUPEB...</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                <!-- Recent Results -->
+                <div id="recent-results" class="bg-white rounded-xl p-4 sm:p-6">
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <h2 class="text-base sm:text-lg font-bold text-gray-900">Recent Results</h2>
+                        <a href="#" onclick="showToast('Full history coming soon!', 'info')" class="text-xs sm:text-sm text-indigo-600 hover:underline">View All</a>
+                    </div>
+                    
+                    <div id="resultsList" class="space-y-2 sm:space-y-3">
+                        <!-- Results will be loaded dynamically -->
+                        <div class="text-center py-6 sm:py-8 text-gray-500">
+                            <i class="fas fa-clipboard-list text-3xl sm:text-4xl mb-2 sm:mb-3 text-gray-300"></i>
+                            <p class="text-sm">No exams taken yet</p>
+                            <a href="#exam-categories" class="inline-block mt-2 sm:mt-3 text-indigo-600 text-sm font-medium hover:underline">
+                                Start Your First Exam
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column (Sidebar) -->
+            <div class="space-y-4 sm:space-y-6">
+                
+                <!-- Performance Chart -->
+                <div class="bg-white rounded-xl p-4 sm:p-6">
+                    <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Performance</h3>
+                    <div class="h-40 sm:h-48">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Study Tip -->
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 sm:p-6 text-white">
+                    <div class="flex items-center gap-2 mb-2 sm:mb-3">
+                        <i class="fas fa-lightbulb text-yellow-300"></i>
+                        <h3 class="font-bold text-sm sm:text-base">Study Tip</h3>
+                    </div>
+                    <p class="text-xs sm:text-sm text-indigo-100 mb-3" id="studyTip">
+                        Take regular breaks during study sessions. The Pomodoro technique (25 min study, 5 min break) improves focus.
+                    </p>
+                    <button onclick="nextTip()" class="text-xs text-white underline hover:no-underline">
+                        Next tip <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Upcoming Exams -->
+                <div class="bg-white rounded-xl p-4 sm:p-6">
+                    <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Upcoming</h3>
+                    <div class="space-y-2 sm:space-y-3">
+                        
+                        <div class="flex items-center gap-3 p-2 sm:p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate">JAMB 2024</p>
+                                <p class="text-xs text-red-600">April 2024</p>
+                            </div>
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Soon</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-2 sm:p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate">WAEC May/June</p>
+                                <p class="text-xs text-yellow-600">May 2024</p>
+                            </div>
+                            <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded">2 months</span>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Continue Studying -->
+                <div class="bg-white rounded-xl p-4 sm:p-6">
+                    <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Continue</h3>
+                    <div class="space-y-2 sm:space-y-3">
+                        
+                        <a href="jamb-cbt.html" class="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-laptop text-purple-600 text-sm sm:text-base"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm">JAMB CBT</p>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div class="bg-purple-500 h-1.5 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="waec-study.html" class="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-book text-green-600 text-sm sm:text-base"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm">WAEC Study</p>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div class="bg-green-500 h-1.5 rounded-full" style="width: 35%"></div>
+                                </div>
+                            </div>
+                        </a>
+                        
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/exam-data.js"></script>
+    
+    <script>
+        // Study tips array
+        const studyTips = [
+            "Take regular breaks during study sessions. The Pomodoro technique (25 min study, 5 min break) improves focus.",
+            "Practice past questions regularly. Familiarity with exam patterns boosts confidence.",
+            "Create a study schedule and stick to it. Consistency is key to exam success.",
+            "Review your mistakes after each practice exam. Understanding errors prevents repeating them.",
+            "Get enough sleep before exams. A well-rested mind performs better than a tired one.",
+            "Study in a quiet environment free from distractions like phones and TV.",
+            "Teach what you've learned to someone else. It helps reinforce your understanding."
+        ];
+        
+        let currentTip = 0;
+        
+        function nextTip() {
+            currentTip = (currentTip + 1) % studyTips.length;
+            document.getElementById('studyTip').textContent = studyTips[currentTip];
+        }
+        
+        // Initialize chart
+        function initChart() {
+            const ctx = document.getElementById('performanceChart');
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Score',
+                        data: [65, 70, 68, 75, 72, 80, 78],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+        
+        // Initialize page on DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            initChart();
+            if (typeof loadDashboardData === 'function') loadDashboardData();
+        });
+    </script>
+</body>
+</html>
