@@ -1,3 +1,4 @@
+// js/guard.js
 // Authentication Guard - Prevents unauthorized access to protected pages
 
 function checkAuth() {
@@ -28,8 +29,5 @@ function checkAuth() {
     return true;
 }
 
-// Run guard immediately
-if (!checkAuth()) {
-    // Stop further execution if redirected
-    throw new Error('Redirecting to appropriate page...');
-}
+// Run guard immediately (don't throw, just check)
+checkAuth();
