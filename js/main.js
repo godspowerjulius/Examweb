@@ -70,38 +70,6 @@ function showToast(message, type = 'success', duration = 3000) {
     }, duration);
 }
 
-// ============================================
-// LOCAL STORAGE HELPERS
-// ============================================
-function saveToStorage(key, data) {
-    try {
-        localStorage.setItem(key, JSON.stringify(data));
-        return true;
-    } catch (e) {
-        console.error('Storage error:', e);
-        return false;
-    }
-}
-
-function getFromStorage(key, defaultValue = null) {
-    try {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : defaultValue;
-    } catch (e) {
-        console.error('Storage error:', e);
-        return defaultValue;
-    }
-}
-
-function removeFromStorage(key) {
-    try {
-        localStorage.removeItem(key);
-        return true;
-    } catch (e) {
-        console.error('Storage remove error:', e);
-        return false;
-    }
-}
 
 function clearStorageKey(key) {
     return removeFromStorage(key);
