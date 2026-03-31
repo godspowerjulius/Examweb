@@ -3,32 +3,45 @@
    ============================================ */
 
 // ============================================
-// TOAST NOTIFICATION SYSTEM
+// STORAGE HELPERS (ONLY ONE DEFINITION)
 // ============================================
-/**
- * Global Storage Helpers
- */
 function saveToStorage(key, data) {
     try {
         localStorage.setItem(key, JSON.stringify(data));
+        return true;
     } catch (e) {
-        console.error("Error saving to local storage", e);
+        console.error('Storage error:', e);
+        return false;
     }
 }
 
 function getFromStorage(key, defaultValue = null) {
-    const data = localStorage.getItem(key);
-    if (!data) return defaultValue;
     try {
-        return JSON.parse(data);
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
     } catch (e) {
+        console.error('Storage error:', e);
         return defaultValue;
     }
 }
 
 function removeFromStorage(key) {
-    localStorage.removeItem(key);
+    try {
+        localStorage.removeItem(key);
+        return true;
+    } catch (e) {
+        console.error('Storage remove error:', e);
+        return false;
+    }
 }
+
+function clearStorageKey(key) {
+    return removeFromStorage(key);
+}
+
+// ============================================
+// TOAST NOTIFICATION SYSTEM
+// ============================================
 function showToast(message, type = 'success', duration = 3000) {
     let container = document.getElementById('toastContainer');
 
@@ -68,11 +81,6 @@ function showToast(message, type = 'success', duration = 3000) {
         toast.classList.add('translate-x-full');
         setTimeout(() => toast.remove(), 300);
     }, duration);
-}
-
-
-function clearStorageKey(key) {
-    return removeFromStorage(key);
 }
 
 // ============================================
@@ -218,44 +226,6 @@ function shuffleArray(array) {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
-}
-
-// ============================================
-// AUTH CHECK
-// ============================================
-function checkAuth() {
-    const user =
-        getFromStorage('examPortalCurrentUser') ||
-        getFromStorage('naijaexams_user');
-
-    if (!user) {
-        showToast('Please login to continue', 'warning');
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1200);
-        return null;
-    }
-
-    return user;
-}
-
-function logout() {
-    removeFromStorage('examPortalCurrentUser');
-    removeFromStorage('naijaexams_user');
-    removeFromStorage('activeExamSession');
-
-    showToast('Logged out successfully', 'info');
-
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 1000);
-}
-
-// ============================================
-// PAGE PROTECTION
-// ============================================
-function protectPage() {
-    return checkAuth();
 }
 
 // ============================================
