@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard - NaijaExams</title>
     
-    <!-- Auth & Guard Scripts (MUST load FIRST) -->
+    <!-- 🔐 ROUTE PROTECTION (MUST BE FIRST!) -->
+    <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/guard.js"></script>
     
     <!-- Other scripts -->
-    <script src="js/main.js"></script>
     <script src="js/router.js"></script>
     <script src="js/exam-data.js"></script>
     <script src="js/result.js"></script>
@@ -43,75 +43,7 @@
         }
     </script>
 </head>
-<nav class="bg-white shadow sticky top-0 z-40">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
 
-    <a href="index.html" class="text-xl font-bold text-blue-700">Naija Exams</a>
-
-    <!-- Desktop Nav -->
-    <div class="hidden md:flex items-center gap-6">
-      <a href="index.html" data-nav-link class="text-gray-700 hover:text-blue-600">Home</a>
-      <a href="study.html" data-nav-link class="text-gray-700 hover:text-blue-600">Study</a>
-      <a href="dashboard.html" data-nav-link data-protected-link class="text-gray-700 hover:text-blue-600">Dashboard</a>
-      <a href="profile.html" data-nav-link data-protected-link class="text-gray-700 hover:text-blue-600">Profile</a>
-
-      <div class="relative group">
-        <button class="text-gray-700 hover:text-blue-600">Exams</button>
-        <div class="absolute hidden group-hover:block bg-white shadow rounded-lg mt-2 w-48 p-2">
-          <a href="#" data-exam-link="ijmb" class="block px-3 py-2 hover:bg-gray-100 rounded">IJMB</a>
-          <a href="#" data-exam-link="waec" class="block px-3 py-2 hover:bg-gray-100 rounded">WAEC</a>
-          <a href="#" data-exam-link="jamb" class="block px-3 py-2 hover:bg-gray-100 rounded">JAMB</a>
-          <a href="#" data-exam-link="neco" class="block px-3 py-2 hover:bg-gray-100 rounded">NECO</a>
-          <a href="#" data-exam-link="post-utme" class="block px-3 py-2 hover:bg-gray-100 rounded">Post-UTME</a>
-          <a href="#" data-exam-link="other-exams" class="block px-3 py-2 hover:bg-gray-100 rounded">Other Exams</a>
-        </div>
-      </div>
-
-      <!-- Guest -->
-      <a href="login.html" data-guest-only class="text-gray-700 hover:text-blue-600">Login</a>
-      <a href="register.html" data-guest-only class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Register</a>
-
-      <!-- User -->
-      <span data-user-only class="hidden text-sm text-gray-700">
-        Welcome, <span data-username></span>
-      </span>
-      <button data-user-only data-logout class="hidden bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
-        Logout
-      </button>
-    </div>
-
-    <!-- Mobile Button -->
-    <button id="mobileMenuBtn" class="md:hidden text-2xl text-gray-700">
-      <i class="fas fa-bars"></i>
-    </button>
-  </div>
-
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="hidden md:hidden px-4 pb-4 space-y-2 bg-white border-t">
-    <a href="index.html" data-nav-link class="block py-2 text-gray-700">Home</a>
-    <a href="study.html" data-nav-link class="block py-2 text-gray-700">Study</a>
-    <a href="dashboard.html" data-nav-link data-protected-link class="block py-2 text-gray-700">Dashboard</a>
-    <a href="profile.html" data-nav-link data-protected-link class="block py-2 text-gray-700">Profile</a>
-
-    <div class="pt-2 border-t">
-      <p class="text-sm font-semibold text-gray-500 mb-2">Exam Categories</p>
-      <a href="#" data-exam-link="ijmb" class="block py-2 text-gray-700">IJMB</a>
-      <a href="#" data-exam-link="waec" class="block py-2 text-gray-700">WAEC</a>
-      <a href="#" data-exam-link="jamb" class="block py-2 text-gray-700">JAMB</a>
-      <a href="#" data-exam-link="neco" class="block py-2 text-gray-700">NECO</a>
-      <a href="#" data-exam-link="post-utme" class="block py-2 text-gray-700">Post-UTME</a>
-      <a href="#" data-exam-link="other-exams" class="block py-2 text-gray-700">Other Exams</a>
-    </div>
-
-    <a href="login.html" data-guest-only class="block py-2 text-gray-700">Login</a>
-    <a href="register.html" data-guest-only class="block py-2 text-gray-700">Register</a>
-
-    <div data-user-only class="hidden pt-2 border-t">
-      <p class="text-sm text-gray-700 mb-2">Welcome, <span data-username></span></p>
-      <button data-logout class="w-full bg-red-500 text-white py-2 rounded-lg">Logout</button>
-    </div>
-  </div>
-</nav>
 <body class="bg-gray-50 font-sans text-gray-800">
     
     <!-- Navigation will be injected by navigation.js -->
@@ -134,7 +66,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
             
             <!-- Exams Taken -->
-            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+            <div class="bg-white rounded-xl p-3 sm:p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Exams Taken</p>
@@ -147,7 +79,7 @@
             </div>
             
             <!-- Average Score -->
-            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+            <div class="bg-white rounded-xl p-3 sm:p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Average Score</p>
@@ -160,7 +92,7 @@
             </div>
             
             <!-- Best Score -->
-            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+            <div class="bg-white rounded-xl p-3 sm:p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Best Score</p>
@@ -173,7 +105,7 @@
             </div>
             
             <!-- Study Streak -->
-            <div class="bg-white rounded-xl p-3 sm:p-5 card-shadow-hover">
+            <div class="bg-white rounded-xl p-3 sm:p-5 shadow-sm hover:shadow-md transition">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs sm:text-sm text-gray-500 mb-0.5 sm:mb-1">Study Streak</p>
@@ -193,7 +125,7 @@
             <div class="lg:col-span-2 space-y-4 sm:space-y-6">
                 
                 <!-- Quick Actions -->
-                <div class="bg-white rounded-xl p-4 sm:p-6">
+                <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Quick Actions</h2>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         
@@ -218,7 +150,7 @@
                             <span class="font-semibold text-gray-900 text-xs sm:text-sm">Profile</span>
                         </a>
                         
-                        <a href="#" onclick="showToast('Feature coming soon!', 'info')" class="flex flex-col items-center p-3 sm:p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition group">
+                        <a href="#" onclick="showToast('Feature coming soon!', 'info'); return false;" class="flex flex-col items-center p-3 sm:p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition group">
                             <div class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition">
                                 <i class="fas fa-book text-white text-base sm:text-lg"></i>
                             </div>
@@ -229,14 +161,14 @@
                 </div>
 
                 <!-- Exam Categories -->
-                <div id="exam-categories" class="bg-white rounded-xl p-4 sm:p-6">
+                <div id="exam-categories" class="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <h2 class="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Exam Categories</h2>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         
                         <!-- JAMB -->
                         <a href="jamb.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-purple-50 transition border border-gray-100 hover:border-purple-200">
-                            <div class="w-10 h-10 rounded-lg badge-jamb flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-laptop text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -248,7 +180,7 @@
                         
                         <!-- WAEC -->
                         <a href="waec.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-green-50 transition border border-gray-100 hover:border-green-200">
-                            <div class="w-10 h-10 rounded-lg badge-waec flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-green-600 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-certificate text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -260,7 +192,7 @@
                         
                         <!-- NECO -->
                         <a href="neco.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-orange-50 transition border border-gray-100 hover:border-orange-200">
-                            <div class="w-10 h-10 rounded-lg badge-neco flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-orange-600 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-award text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -272,7 +204,7 @@
                         
                         <!-- IJMB -->
                         <a href="ijmb.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-blue-50 transition border border-gray-100 hover:border-blue-200">
-                            <div class="w-10 h-10 rounded-lg badge-ijmb flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-university text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -284,7 +216,7 @@
                         
                         <!-- Post-UTME -->
                         <a href="post-utme.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-red-50 transition border border-gray-100 hover:border-red-200">
-                            <div class="w-10 h-10 rounded-lg badge-postutme flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-school text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -296,7 +228,7 @@
                         
                         <!-- Other Exams -->
                         <a href="other-exams.html" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-teal-50 transition border border-gray-100 hover:border-teal-200">
-                            <div class="w-10 h-10 rounded-lg badge-other flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-ellipsis-h text-white"></i>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -310,10 +242,10 @@
                 </div>
 
                 <!-- Recent Results -->
-                <div id="recent-results" class="bg-white rounded-xl p-4 sm:p-6">
+                <div id="recent-results" class="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <div class="flex items-center justify-between mb-3 sm:mb-4">
                         <h2 class="text-base sm:text-lg font-bold text-gray-900">Recent Results</h2>
-                        <a href="#" onclick="showToast('Full history coming soon!', 'info')" class="text-xs sm:text-sm text-indigo-600 hover:underline">View All</a>
+                        <a href="#" onclick="showToast('Full history coming soon!', 'info'); return false;" class="text-xs sm:text-sm text-indigo-600 hover:underline">View All</a>
                     </div>
                     
                     <div id="resultsList" class="space-y-2 sm:space-y-3">
@@ -334,7 +266,7 @@
             <div class="space-y-4 sm:space-y-6">
                 
                 <!-- Performance Chart -->
-                <div class="bg-white rounded-xl p-4 sm:p-6">
+                <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Performance</h3>
                     <div class="h-40 sm:h-48">
                         <canvas id="performanceChart"></canvas>
@@ -342,7 +274,7 @@
                 </div>
 
                 <!-- Study Tip -->
-                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 sm:p-6 text-white">
+                <div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 sm:p-6 text-white shadow-sm">
                     <div class="flex items-center gap-2 mb-2 sm:mb-3">
                         <i class="fas fa-lightbulb text-yellow-300"></i>
                         <h3 class="font-bold text-sm sm:text-base">Study Tip</h3>
@@ -356,52 +288,52 @@
                 </div>
 
                 <!-- Upcoming Exams -->
-                <div class="bg-white rounded-xl p-4 sm:p-6">
+                <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Upcoming</h3>
                     <div class="space-y-2 sm:space-y-3">
                         
                         <div class="flex items-center gap-3 p-2 sm:p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate">JAMB 2024</p>
-                                <p class="text-xs text-red-600">April 2024</p>
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate">JAMB 2026</p>
+                                <p class="text-xs text-red-600">Ongoing</p>
                             </div>
-                            <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Soon</span>
+                            <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded">Now</span>
                         </div>
                         
                         <div class="flex items-center gap-3 p-2 sm:p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate">WAEC May/June</p>
-                                <p class="text-xs text-yellow-600">May 2024</p>
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate">WAEC 2026</p>
+                                <p class="text-xs text-yellow-600">May/June 2026</p>
                             </div>
-                            <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded">2 months</span>
+                            <span class="text-xs bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded">Soon</span>
                         </div>
                         
                     </div>
                 </div>
 
                 <!-- Continue Studying -->
-                <div class="bg-white rounded-xl p-4 sm:p-6">
+                <div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 text-sm sm:text-base">Continue</h3>
                     <div class="space-y-2 sm:space-y-3">
                         
-                        <a href="jamb-cbt.html" class="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition">
+                        <a href="jamb.html" class="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition">
                             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-laptop text-purple-600 text-sm sm:text-base"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-900 text-xs sm:text-sm">JAMB CBT</p>
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm">JAMB Practice</p>
                                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
                                     <div class="bg-purple-500 h-1.5 rounded-full" style="width: 60%"></div>
                                 </div>
                             </div>
                         </a>
                         
-                        <a href="waec-study.html" class="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition">
+                        <a href="waec.html" class="flex items-center gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition">
                             <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-book text-green-600 text-sm sm:text-base"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-900 text-xs sm:text-sm">WAEC Study</p>
+                                <p class="font-semibold text-gray-900 text-xs sm:text-sm">WAEC Practice</p>
                                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
                                     <div class="bg-green-500 h-1.5 rounded-full" style="width: 35%"></div>
                                 </div>
@@ -415,10 +347,6 @@
         </div>
     </main>
 
-    <!-- Scripts -->
-    <script src="js/main.js"></script>
-    <script src="js/exam-data.js"></script>
-    
     <script>
         // Study tips array
         const studyTips = [
