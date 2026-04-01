@@ -1,23 +1,66 @@
 /* ============================================
-   NIGERIAN EXAM PORTAL - AUTH SYSTEM
+   AUTHENTICATION SYSTEM - FIREBASE VERSION
    ============================================ */
 
-// Harmonized keys to match your HTML files
-const USERS_KEY = "examPortalUsers";
-const CURRENT_USER_KEY = "examPortalCurrentUser"; 
+import { 
+    auth, 
+    db, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged,
+    collection,
+    addDoc,
+    query,
+    where,
+    getDocs,
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc,
+    serverTimestamp
+} from './firebase-config.js';
+
+const USERS_COLLECTION = "users";
+const CURRENT_USER_KEY = "examPortalCurrentUser";
 
 // ============================================
-// USER HELPERS
+// GLOBAL USER STATE
 // ============================================
-function getAllUsers() {
-    return getFromStorage(USERS_KEY, []);
-}
+let currentUser = null;
 
-function saveUsers(users) {
-    saveToStorage(USERS_KEY, users);
-}
+// Monitor authentication state changes
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        console.log("User logged in:", user.email);
+        try {
+            const userDoc = await getDoc(doc(db, USERS_COLLECTION, user.uid));
+            if (userDoc.exists()) {
+                currentUser = { 
+                    uid: user.uid, 
+                    email: user.email,
+                    ...userDoc.data() 
+                };
+                saveToStorage(CURRENT_USER_KEY, currentUser);
+                console.log("Current user:", currentUser);
+            } else {
+                console.log("User document not found");
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    } else {
+        console.log("User logged out");
+        currentUser = null;
+        removeFromStorage(CURRENT_USER_KEY);
+    }
+});
 
+// ============================================
+// GET CURRENT USER
+// ============================================
 function getCurrentUser() {
+    if (currentUser) return currentUser;
     return getFromStorage(CURRENT_USER_KEY);
 }
 
@@ -30,177 +73,268 @@ function checkAuth() {
     return user;
 }
 
-function generateUserId() {
-    return "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-}
-
-function sanitizeUser(user) {
-    if (!user) return null;
-    const { password, ...safeUser } = user;
-    return safeUser;
-}
-
-function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
 // ============================================
 // REGISTER USER
 // ============================================
-function registerUser(userData) {
-    const users = getAllUsers();
+async function registerUser(userData) {
+    try {
+        const { fullName, username, email, password, level } = userData;
 
-    const fullName = (userData.fullName || "").trim();
-    const username = (userData.username || "").trim().toLowerCase();
-    const email = (userData.email || "").trim().toLowerCase();
-    const password = userData.password || "";
-    const level = (userData.level || "").trim();
+        // Validate inputs
+        if (!fullName || !username || !email || !password) {
+            return { success: false, message: "Please fill all required fields." };
+        }
 
-    if (!fullName || !username || !email || !password) {
-        return { success: false, message: "Please fill all required fields." };
+        if (!validateEmail(email)) {
+            return { success: false, message: "Please enter a valid email address." };
+        }
+
+        if (password.length < 6) {
+            return { success: false, message: "Password must be at least 6 characters." };
+        }
+
+        // Check if username already exists
+        const usernameQuery = query(
+            collection(db, USERS_COLLECTION), 
+            where("username", "==", username.toLowerCase())
+        );
+        const usernameSnapshot = await getDocs(usernameQuery);
+        
+        if (!usernameSnapshot.empty) {
+            return { success: false, message: "Username already taken." };
+        }
+
+        // Create Firebase Auth user
+        const authResult = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = authResult.user.uid;
+
+        // Create user document in Firestore
+        const userDataFull = {
+            uid: uid,
+            fullName: fullName.trim(),
+            username: username.toLowerCase(),
+            email: email.toLowerCase(),
+            level: level || "SSS 3",
+            isAdmin: false,
+            role: 'user',
+            createdAt: serverTimestamp(),
+            lastActive: serverTimestamp(),
+            profilePicture: null,
+            bio: "",
+            phone: "",
+            examsTaken: 0,
+            totalScore: 0,
+            averageScore: 0
+        };
+
+        await setDoc(doc(db, USERS_COLLECTION, uid), userDataFull);
+
+        // Update local current user
+        currentUser = { uid, ...userDataFull };
+        saveToStorage(CURRENT_USER_KEY, currentUser);
+
+        console.log("User registered successfully:", email);
+        return { success: true, message: "Registration successful!", user: currentUser };
+    } catch (error) {
+        console.error('Registration error:', error);
+        
+        if (error.code === 'auth/email-already-in-use') {
+            return { success: false, message: "Email already registered." };
+        }
+        if (error.code === 'auth/weak-password') {
+            return { success: false, message: "Password is too weak. Use at least 6 characters." };
+        }
+        if (error.code === 'auth/invalid-email') {
+            return { success: false, message: "Invalid email address." };
+        }
+        
+        return { success: false, message: error.message };
     }
-
-    if (!validateEmail(email)) {
-        return { success: false, message: "Please enter a valid email address." };
-    }
-
-    if (users.some(u => u.username === username)) {
-        return { success: false, message: "Username already exists." };
-    }
-
-    if (users.some(u => u.email === email)) {
-        return { success: false, message: "Email already registered." };
-    }
-
-    const newUser = {
-        id: generateUserId(),
-        fullName,
-        username,
-        email,
-        password, // In a real app, this would be hashed
-        level,
-        isAdmin: false,
-        role: 'user',
-        createdAt: new Date().toISOString(),
-        lastActive: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    return { success: true, message: "Registration successful!" };
 }
 
 // ============================================
 // LOGIN USER
 // ============================================
-function loginUser(username, password) {
-    const users = getAllUsers();
-    const user = users.find(u => 
-        (u.username === username.toLowerCase() || u.email === username.toLowerCase()) && u.password === password
-    );
+async function loginUser(emailOrUsername, password) {
+    try {
+        let email = emailOrUsername;
 
-    if (user) {
-        // Update last login
-        user.lastActive = new Date().toISOString();
-        saveUsers(users);
+        // If input looks like username, find the email
+        if (!emailOrUsername.includes('@')) {
+            const usernameQuery = query(
+                collection(db, USERS_COLLECTION),
+                where("username", "==", emailOrUsername.toLowerCase())
+            );
+            const snapshot = await getDocs(usernameQuery);
+            
+            if (snapshot.empty) {
+                return { success: false, message: "User not found." };
+            }
+            
+            email = snapshot.docs[0].data().email;
+        }
 
-        const safeUser = sanitizeUser(user);
-        // Keep admin info
-        safeUser.isAdmin = user.isAdmin || false;
-        safeUser.role = user.role || 'user';
+        // Sign in with Firebase
+        const authResult = await signInWithEmailAndPassword(auth, email, password);
+        const uid = authResult.user.uid;
+
+        // Get user data from Firestore
+        const userDoc = await getDoc(doc(db, USERS_COLLECTION, uid));
         
-        saveToStorage(CURRENT_USER_KEY, safeUser);
-        return { success: true, user: safeUser };
+        if (!userDoc.exists()) {
+            return { success: false, message: "User data not found." };
+        }
+
+        const userData = { uid: uid, email: authResult.user.email, ...userDoc.data() };
+        
+        // Update last active time
+        await updateDoc(doc(db, USERS_COLLECTION, uid), {
+            lastActive: serverTimestamp()
+        });
+
+        // Update local current user
+        currentUser = userData;
+        saveToStorage(CURRENT_USER_KEY, currentUser);
+
+        console.log("User logged in successfully:", email);
+        return { success: true, user: userData };
+    } catch (error) {
+        console.error('Login error:', error);
+        
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            return { success: false, message: "Invalid email or password." };
+        }
+        if (error.code === 'auth/too-many-requests') {
+            return { success: false, message: "Too many login attempts. Try again later." };
+        }
+        if (error.code === 'auth/invalid-email') {
+            return { success: false, message: "Invalid email address." };
+        }
+        
+        return { success: false, message: error.message };
     }
-
-    return { success: false, message: "Invalid username or password." };
 }
 
 // ============================================
-// LOGOUT
+// LOGOUT USER
 // ============================================
-function logoutUser() {
-    removeFromStorage(CURRENT_USER_KEY);
-    removeFromStorage("activeExamSession");
-    window.location.href = "login.html";
+async function logoutUser() {
+    try {
+        await signOut(auth);
+        currentUser = null;
+        removeFromStorage(CURRENT_USER_KEY);
+        removeFromStorage("currentExamSession");
+        showToast('Logged out successfully', 'success');
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1000);
+    } catch (error) {
+        console.error('Logout error:', error);
+        showToast('Error logging out', 'error');
+    }
 }
 
 // ============================================
-// ADMIN ROLE MANAGEMENT
+// ADMIN FUNCTIONS
 // ============================================
+async function makeUserAdmin(userId) {
+    try {
+        await updateDoc(doc(db, USERS_COLLECTION, userId), {
+            isAdmin: true,
+            role: 'admin'
+        });
+        showToast('User promoted to admin', 'success');
+        return { success: true, message: "User promoted to admin" };
+    } catch (error) {
+        console.error('Error promoting user:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+async function removeAdminRole(userId) {
+    try {
+        await updateDoc(doc(db, USERS_COLLECTION, userId), {
+            isAdmin: false,
+            role: 'user'
+        });
+        showToast('Admin role removed', 'success');
+        return { success: true, message: "Admin role removed" };
+    } catch (error) {
+        console.error('Error removing admin role:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+// ============================================
+// UPDATE USER PROFILE
+// ============================================
+async function updateUserProfile(updates) {
+    try {
+        const userId = currentUser?.uid;
+        if (!userId) {
+            return { success: false, message: "User not logged in" };
+        }
+
+        // Don't allow changing uid or email
+        const { uid, email, ...safeUpdates } = updates;
+
+        await updateDoc(doc(db, USERS_COLLECTION, userId), safeUpdates);
+
+        // Update local current user
+        currentUser = { ...currentUser, ...safeUpdates };
+        saveToStorage(CURRENT_USER_KEY, currentUser);
+
+        showToast('Profile updated successfully', 'success');
+        return { success: true, message: "Profile updated successfully" };
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showToast('Error updating profile', 'error');
+        return { success: false, message: error.message };
+    }
+}
+
+// ============================================
+// GET ALL USERS
+// ============================================
+async function getAllUsers() {
+    try {
+        const querySnapshot = await getDocs(collection(db, USERS_COLLECTION));
+        const users = [];
+        querySnapshot.forEach((doc) => {
+            users.push({ uid: doc.id, ...doc.data() });
+        });
+        return users;
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        return [];
+    }
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
 function isAdmin() {
     const user = getCurrentUser();
-    if (!user) return false;
-    return user.isAdmin === true || user.role === 'admin';
+    return user?.isAdmin === true || user?.role === 'admin';
 }
 
-function checkAdminAccess() {
-    if (!isAdmin()) {
-        showToast('Admin access required', 'error');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
-        return false;
-    }
-    return true;
-}
-
-function makeUserAdmin(userId) {
-    const users = getAllUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (!user) {
-        return { success: false, message: "User not found" };
-    }
-    
-    user.isAdmin = true;
-    user.role = 'admin';
-    saveUsers(users);
-    return { success: true, message: "User promoted to admin" };
-}
-
-function removeAdminRole(userId) {
-    const users = getAllUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (!user) {
-        return { success: false, message: "User not found" };
-    }
-    
-    user.isAdmin = false;
-    user.role = 'user';
-    saveUsers(users);
-    return { success: true, message: "Admin role removed" };
-}
-
-function updateUserProfile(userId, updates) {
-    const users = getAllUsers();
-    const user = users.find(u => u.id === userId);
-    
-    if (!user) {
-        return { success: false, message: "User not found" };
-    }
-    
-    // Don't allow changing password or ID
-    const { password, id, ...allowedUpdates } = updates;
-    Object.assign(user, allowedUpdates);
-    
-    saveUsers(users);
-    
-    // Update current user if it's the same user
-    const currentUser = getCurrentUser();
-    if (currentUser && currentUser.id === userId) {
-        saveToStorage(CURRENT_USER_KEY, sanitizeUser(user));
-    }
-    
-    return { success: true, message: "Profile updated successfully" };
-}
-
-function deleteUser(userId) {
-    let users = getAllUsers();
-    users = users.filter(u => u.id !== userId);
-    saveUsers(users);
-    return { success: true, message: "User deleted" };
-}
+// Export all functions
+export {
+    getCurrentUser,
+    checkAuth,
+    registerUser,
+    loginUser,
+    logoutUser,
+    makeUserAdmin,
+    removeAdminRole,
+    updateUserProfile,
+    getAllUsers,
+    isAdmin,
+    validateEmail,
+    auth
+};
