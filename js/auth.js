@@ -1,5 +1,5 @@
 /* ============================================
-   NIGERIAN EXAM PORTAL - AUTH SYSTEM (FIXED)
+   NIGERIAN EXAM PORTAL - AUTH SYSTEM
    ============================================ */
 
 // Harmonized keys to match your HTML files
@@ -69,6 +69,10 @@ function registerUser(userData) {
         return { success: false, message: "Username already exists." };
     }
 
+    if (users.some(u => u.email === email)) {
+        return { success: false, message: "Email already registered." };
+    }
+
     const newUser = {
         id: generateUserId(),
         fullName,
@@ -76,7 +80,10 @@ function registerUser(userData) {
         email,
         password, // In a real app, this would be hashed
         level,
-        createdAt: new Date().toISOString()
+        isAdmin: false,
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActive: new Date().toISOString()
     };
 
     users.push(newUser);
@@ -91,11 +98,19 @@ function registerUser(userData) {
 function loginUser(username, password) {
     const users = getAllUsers();
     const user = users.find(u => 
-        u.username === username.toLowerCase() && u.password === password
+        (u.username === username.toLowerCase() || u.email === username.toLowerCase()) && u.password === password
     );
 
     if (user) {
+        // Update last login
+        user.lastActive = new Date().toISOString();
+        saveUsers(users);
+
         const safeUser = sanitizeUser(user);
+        // Keep admin info
+        safeUser.isAdmin = user.isAdmin || false;
+        safeUser.role = user.role || 'user';
+        
         saveToStorage(CURRENT_USER_KEY, safeUser);
         return { success: true, user: safeUser };
     }
@@ -110,4 +125,82 @@ function logoutUser() {
     removeFromStorage(CURRENT_USER_KEY);
     removeFromStorage("activeExamSession");
     window.location.href = "login.html";
+}
+
+// ============================================
+// ADMIN ROLE MANAGEMENT
+// ============================================
+function isAdmin() {
+    const user = getCurrentUser();
+    if (!user) return false;
+    return user.isAdmin === true || user.role === 'admin';
+}
+
+function checkAdminAccess() {
+    if (!isAdmin()) {
+        showToast('Admin access required', 'error');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
+        return false;
+    }
+    return true;
+}
+
+function makeUserAdmin(userId) {
+    const users = getAllUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) {
+        return { success: false, message: "User not found" };
+    }
+    
+    user.isAdmin = true;
+    user.role = 'admin';
+    saveUsers(users);
+    return { success: true, message: "User promoted to admin" };
+}
+
+function removeAdminRole(userId) {
+    const users = getAllUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) {
+        return { success: false, message: "User not found" };
+    }
+    
+    user.isAdmin = false;
+    user.role = 'user';
+    saveUsers(users);
+    return { success: true, message: "Admin role removed" };
+}
+
+function updateUserProfile(userId, updates) {
+    const users = getAllUsers();
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) {
+        return { success: false, message: "User not found" };
+    }
+    
+    // Don't allow changing password or ID
+    const { password, id, ...allowedUpdates } = updates;
+    Object.assign(user, allowedUpdates);
+    
+    saveUsers(users);
+    
+    // Update current user if it's the same user
+    const currentUser = getCurrentUser();
+    if (currentUser && currentUser.id === userId) {
+        saveToStorage(CURRENT_USER_KEY, sanitizeUser(user));
+    }
+    
+    return { success: true, message: "Profile updated successfully" };
+}
+
+function deleteUser(userId) {
+    let users = getAllUsers();
+    users = users.filter(u => u.id !== userId);
+    saveUsers(users);
+    return { success: true, message: "User deleted" };
 }
