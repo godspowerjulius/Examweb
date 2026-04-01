@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Exam Results - NaijaExams</title>
+    
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/navigation.js"></script>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .print-break {
+                page-break-after: always;
+            }
+        }
+
+        .result-animation {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .status-excellent {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            color: white;
+        }
+
+        .status-very-good {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .status-good {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        .status-pass {
+            background: linear-gradient(135deg, #fdba74 0%, #fb923c 100%);
+            color: white;
+        }
+
+        .status-fail {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-14 sm:h-16">
+                
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center space-x-2">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white text-sm sm:text-lg"></i>
+                    </div>
+                    <span class="text-lg sm:text-xl font-bold text-gray-900">NaijaExams</span>
+                </a>
+
+                <!-- Navigation -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700 hidden sm:inline">Welcome, <span data-username>User</span>!</span>
+                    <a href="dashboard.html" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        <!-- Score Summary Card -->
+        <div class="result-animation bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-800 text-white rounded-2xl p-8 sm:p-12 mb-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black mb-2 drop-shadow-lg">Exam Complete!</h1>
+                <p class="text-indigo-100 text-lg sm:text-xl">Here's your performance summary</p>
+            </div>
+
+            <!-- Score Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center mb-8">
+                <!-- Score -->
+                <div class="bg-white/10 rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition">
+                    <p class="text-indigo-100 text-xs sm:text-sm mb-2 font-semibold">Your Score</p>
+                    <p class="text-3xl sm:text-4xl lg:text-5xl font-black" id="scoreValue">0</p>
+                    <p class="text-xs sm:text-sm text-indigo-200 mt-1" id="scoreDenominator">of 0</p>
+                </div>
+
+                <!-- Percentage -->
+                <div class="bg-white/10 rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition">
+                    <p class="text-indigo-100 text-xs sm:text-sm mb-2 font-semibold">Percentage</p>
+                    <p class="text-3xl sm:text-4xl lg:text-5xl font-black" id="percentageValue">0%</p>
+                    <p class="text-xs sm:text-sm text-indigo-200 mt-1">Pass Rate</p>
+                </div>
+
+                <!-- Status -->
+                <div class="bg-white/10 rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition">
+                    <p class="text-indigo-100 text-xs sm:text-sm mb-2 font-semibold">Status</p>
+                    <p class="text-2xl sm:text-3xl lg:text-4xl font-black" id="statusValue">-</p>
+                    <p class="text-xs sm:text-sm text-indigo-200 mt-1" id="statusDescription">Performance</p>
+                </div>
+
+                <!-- Time -->
+                <div class="bg-white/10 rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition">
+                    <p class="text-indigo-100 text-xs sm:text-sm mb-2 font-semibold">Time Spent</p>
+                    <p class="text-2xl sm:text-3xl lg:text-4xl font-black" id="timeSpentValue">0m</p>
+                    <p class="text-xs sm:text-sm text-indigo-200 mt-1">Duration</p>
+                </div>
+            </div>
+
+            <!-- Exam Info -->
+            <div class="bg-white/10 rounded-xl p-4 sm:p-6 backdrop-blur-sm border border-white/20 text-center">
+                <p class="text-sm sm:text-base text-indigo-100">
+                    <strong id="examTypeDisplay">JAMB</strong> • 
+                    <strong id="subjectDisplay">Mathematics</strong> •
+                    <span id="dateDisplay">Today</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Charts & Statistics -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Performance Chart -->
+            <div class="result-animation bg-white rounded-2xl p-6 sm:p-8 shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Performance Breakdown</h2>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="result-animation bg-white rounded-2xl p-6 sm:p-8 shadow-lg">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Detailed Statistics</h2>
+                <div class="space-y-4">
+                    <!-- Correct Answers -->
+                    <div class="flex justify-between items-center pb-4 border-b-2 border-gray-200 hover:bg-gray-50 p-2 rounded transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+                            <span class="text-gray-700 font-semibold">Correct Answers</span>
+                        </div>
+                        <span class="text-2xl sm:text-3xl font-bold text-green-600" id="correctCount">0</span>
+                    </div>
+
+                    <!-- Wrong Answers -->
+                    <div class="flex justify-between items-center pb-4 border-b-2 border-gray-200 hover:bg-gray-50 p-2 rounded transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                            <span class="text-gray-700 font-semibold">Wrong Answers</span>
+                        </div>
+                        <span class="text-2xl sm:text-3xl font-bold text-red-600" id="wrongCount">0</span>
+                    </div>
+
+                    <!-- Unanswered -->
+                    <div class="flex justify-between items-center pb-4 border-b-2 border-gray-200 hover:bg-gray-50 p-2 rounded transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-yellow-500 rounded-full"></div>
+                            <span class="text-gray-700 font-semibold">Unanswered</span>
+                        </div>
+                        <span class="text-2xl sm:text-3xl font-bold text-yellow-600" id="unansweredCount">0</span>
+                    </div>
+
+                    <!-- Success Rate -->
+                    <div class="flex justify-between items-center pt-2 hover:bg-gray-50 p-2 rounded transition">
+                        <span class="text-gray-700 font-semibold">Success Rate</span>
+                        <span class="text-2xl sm:text-3xl font-bold text-indigo-600" id="successRate">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Tips -->
+        <div class="result-animation bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-8">
+            <h3 class="font-bold text-gray-900 mb-3 flex items-center">
+                <i class="fas fa-lightbulb text-blue-600 mr-2"></i>
+                Performance Tips
+            </h3>
+            <p class="text-gray-700 text-sm mb-3" id="performanceTip">
+                Keep practicing to improve your performance.
+            </p>
+            <p class="text-xs text-gray-600">
+                <i class="fas fa-info-circle mr-1"></i>
+                Review your wrong answers to understand the correct concepts.
+            </p>
+        </div>
+
+        <!-- Answer Review Section -->
+        <div class="result-animation bg-white rounded-2xl p-6 sm:p-8 shadow-lg mb-8">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Answer Review</h2>
+            
+            <!-- Filter Buttons -->
+            <div class="mb-6 flex flex-wrap gap-3">
+                <button onclick="filterAnswers('all')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition filter-btn active" data-filter="all">
+                    <i class="fas fa-list mr-2"></i>All Questions (<span id="countAll">0</span>)
+                </button>
+                <button onclick="filterAnswers('correct')" class="px-4 py-2 bg-white border-2 border-green-500 text-green-600 rounded-lg text-sm font-semibold hover:bg-green-50 transition filter-btn" data-filter="correct">
+                    <i class="fas fa-check mr-2"></i>Correct (<span id="countCorrect">0</span>)
+                </button>
+                <button onclick="filterAnswers('wrong')" class="px-4 py-2 bg-white border-2 border-red-500 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition filter-btn" data-filter="wrong">
+                    <i class="fas fa-times mr-2"></i>Wrong (<span id="countWrong">0</span>)
+                </button>
+                <button onclick="filterAnswers('unanswered')" class="px-4 py-2 bg-white border-2 border-yellow-500 text-yellow-600 rounded-lg text-sm font-semibold hover:bg-yellow-50 transition filter-btn" data-filter="unanswered">
+                    <i class="fas fa-question mr-2"></i>Unanswered (<span id="countUnanswered">0</span>)
+                </button>
+            </div>
+
+            <!-- Answers Container -->
+            <div id="answerReview" class="space-y-4">
+                <p class="text-center text-gray-500 py-8">Loading answers...</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="result-animation flex flex-col sm:flex-row gap-4 justify-center mb-8 no-print">
+            <a href="dashboard.html" class="px-8 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-bold text-center flex items-center justify-center gap-2 shadow-lg hover:shadow-xl">
+                <i class="fas fa-home"></i> Back to Dashboard
+            </a>
+            <a href="cbt-setup.html" class="px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-bold text-center flex items-center justify-center gap-2 shadow-lg hover:shadow-xl">
+                <i class="fas fa-redo"></i> Try Another Exam
+            </a>
+            <button onclick="printResults()" class="px-8 py-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl">
+                <i class="fas fa-print"></i> Print Results
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-6 text-center text-sm mt-12 no-print">
+        <p>&copy; 2026 NaijaExams. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let currentResult = null;
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load results
+            const urlParams = new URLSearchParams(window.location.search);
+            const resultId = urlParams.get('resultId');
+
+            let result = null;
+            if (resultId) {
+                const allResults = getFromStorage("examPortalResults", []);
+                result = allResults.find(r => r.id === resultId);
+            } else {
+                result = getFromStorage("latestExamResult");
+            }
+
+            if (!result) {
+                showToast('No results found', 'error');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                return;
+            }
+
+            currentResult = result;
+            displayResults();
+            createChart();
+            updateCounts();
+        });
+
+        function displayResults() {
+            // Score card
+            document.getElementById('scoreValue').textContent = currentResult.score;
+            document.getElementById('scoreDenominator').textContent = `of ${currentResult.total}`;
+            document.getElementById('percentageValue').textContent = `${currentResult.percentage}%`;
+
+            // Status
+            const statusData = getStatusInfo(currentResult.percentage);
+            document.getElementById('statusValue').textContent = statusData.status;
+            document.getElementById('statusValue').className = `text-2xl sm:text-3xl lg:text-4xl font-black ${statusData.color}`;
+            document.getElementById('statusDescription').textContent = statusData.description;
+
+            // Time
+            const minutes = Math.floor(currentResult.timeSpent / 60);
+            const seconds = currentResult.timeSpent % 60;
+            document.getElementById('timeSpentValue').textContent = `${minutes}m ${seconds}s`;
+
+            // Exam info
+            document.getElementById('examTypeDisplay').textContent = currentResult.examType.toUpperCase();
+            document.getElementById('subjectDisplay').textContent = currentResult.subject;
+            const resultDate = new Date(currentResult.submittedAt);
+            document.getElementById('dateDisplay').textContent = resultDate.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+
+            // Statistics
+            const correct = currentResult.results.filter(r => r.isCorrect).length;
+            const wrong = currentResult.results.filter(r => !r.isCorrect && r.userAnswer).length;
+            const unanswered = currentResult.results.filter(r => !r.userAnswer).length;
+
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('wrongCount').textContent = wrong;
+            document.getElementById('unansweredCount').textContent = unanswered;
+            document.getElementById('successRate').textContent = `${currentResult.percentage}%`;
+
+            // Performance tip
+            updatePerformanceTip(currentResult.percentage);
+
+            // Display answers
+            displayAnswers('all');
+        }
+
+        function getStatusInfo(percentage) {
+            if (percentage >= 80) {
+                return { 
+                    status: 'Excellent!', 
+                    color: 'text-green-300', 
+                    description: 'Outstanding Performance' 
+                };
+            } else if (percentage >= 70) {
+                return { 
+                    status: 'Very Good!', 
+                    color: 'text-blue-300', 
+                    description: 'Impressive Work' 
+                };
+            } else if (percentage >= 60) {
+                return { 
+                    status: 'Good', 
+                    color: 'text-yellow-300', 
+                    description: 'Satisfactory' 
+                };
+            } else if (percentage >= 50) {
+                return { 
+                    status: 'Pass', 
+                    color: 'text-orange-300', 
+                    description: 'Acceptable' 
+                };
+            } else {
+                return { 
+                    status: 'Fail', 
+                    color: 'text-red-300', 
+                    description: 'Needs Improvement' 
+                };
+            }
+        }
+
+        function updatePerformanceTip(percentage) {
+            const tips = {
+                excellent: "Outstanding! You've mastered this subject. Keep maintaining this level and tackle more challenging questions.",
+                veryGood: "Excellent work! You're doing great. Focus on the topics where you made mistakes to reach perfection.",
+                good: "Good performance! Review the areas where you struggled and practice more questions from those topics.",
+                pass: "You've passed! However, there's room for improvement. Study the concepts you found difficult.",
+                fail: "Don't give up! Review your weak areas and practice consistently. You'll improve with more effort."
+            };
+
+            let tip = tips.fail;
+            if (percentage >= 80) tip = tips.excellent;
+            else if (percentage >= 70) tip = tips.veryGood;
+            else if (percentage >= 60) tip = tips.good;
+            else if (percentage >= 50) tip = tips.pass;
+
+            document.getElementById('performanceTip').textContent = tip;
+        }
+
+        function updateCounts() {
+            const correct = currentResult.results.filter(r => r.isCorrect).length;
+            const wrong = currentResult.results.filter(r => !r.isCorrect && r.userAnswer).length;
+            const unanswered = currentResult.results.filter(r => !r.userAnswer).length;
+
+            document.getElementById('countAll').textContent = currentResult.results.length;
+            document.getElementById('countCorrect').textContent = correct;
+            document.getElementById('countWrong').textContent = wrong;
+            document.getElementById('countUnanswered').textContent = unanswered;
+        }
+
+        function filterAnswers(filter) {
+            currentFilter = filter;
+            displayAnswers(filter);
+
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-600', 'text-white');
+                btn.classList.add('bg-white', 'border-2', 'text-gray-700');
+            });
+            
+            const activeBtn = document.querySelector(`button[data-filter="${filter}"]`);
+            activeBtn.classList.add('active', 'bg-indigo-600', 'text-white');
+            activeBtn.classList.remove('bg-white', 'border-2', 'text-gray-700');
+        }
+
+        function displayAnswers(filter) {
+            const container = document.getElementById('answerReview');
+            let filteredResults = currentResult.results;
+
+            if (filter === 'correct') {
+                filteredResults = filteredResults.filter(r => r.isCorrect);
+            } else if (filter === 'wrong') {
+                filteredResults = filteredResults.filter(r => !r.isCorrect && r.userAnswer);
+            } else if (filter === 'unanswered') {
+                filteredResults = filteredResults.filter(r => !r.userAnswer);
+            }
+
+            if (filteredResults.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                        <p class="text-lg">No ${filter} questions to display</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = filteredResults.map((result, idx) => {
+                const isCorrect = result.isCorrect;
+                const isUnanswered = !result.userAnswer;
+                const bgColor = isCorrect ? 'bg-green-50 border-green-200' : isUnanswered ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200';
+                const iconColor = isCorrect ? 'text-green-600' : isUnanswered ? 'text-yellow-600' : 'text-red-600';
+                const icon = isCorrect ? 'fa-check-circle' : isUnanswered ? 'fa-question-circle' : 'fa-times-circle';
+                const badge = isCorrect ? 'bg-green-100 text-green-700' : isUnanswered ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700';
+                const badgeText = isCorrect ? '✓ Correct' : isUnanswered ? '? Unanswered' : '✗ Wrong';
+
+                return `
+                    <div class="border-l-4 ${isCorrect ? 'border-green-500' : isUnanswered ? 'border-yellow-500' : 'border-red-500'} ${bgColor} p-6 rounded-lg transition hover:shadow-md">
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="font-semibold text-gray-900 text-lg">
+                                <i class="fas ${icon} ${iconColor} mr-2"></i>
+                                Question ${result.questionIndex}
+                            </h3>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${badge}">
+                                ${badgeText}
+                            </span>
+                        </div>
+
+                        <p class="text-gray-800 mb-4 leading-relaxed font-medium">${result.question}</p>
+
+                        <div class="bg-white/70 rounded-lg p-4 space-y-3">
+                            <div>
+                                <p class="text-xs font-semibold text-gray-600 mb-2">Your Answer:</p>
+                                <p class="text-sm font-bold ${isCorrect ? 'text-green-700' : isUnanswered ? 'text-gray-500' : 'text-red-700'}">
+                                    ${result.userAnswer || '<em>Not answered</em>'}
+                                </p>
+                            </div>
+                            ${!isCorrect ? `
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-600 mb-2">Correct Answer:</p>
+                                    <p class="text-sm font-bold text-green-700">${result.correctAnswer}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function createChart() {
+            const ctx = document.getElementById('performanceChart');
+            if (!ctx) return;
+
+            const correct = currentResult.results.filter(r => r.isCorrect).length;
+            const wrong = currentResult.results.filter(r => !r.isCorrect && r.userAnswer).length;
+            const unanswered = currentResult.results.filter(r => !r.userAnswer).length;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct', 'Wrong', 'Unanswered'],
+                    datasets: [{
+                        data: [correct, wrong, unanswered],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                        borderColor: ['#059669', '#dc2626', '#d97706'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 14, weight: 'bold' }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((context.parsed / total) * 100);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function printResults() {
+            const printWindow = window.open('', '', 'width=800,height=600');
+            const examTitle = `${currentResult.examType.toUpperCase()} - ${currentResult.subject}`;
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Exam Results - ${examTitle}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 20px;
+                            color: #333;
+                        }
+                        h1 { text-align: center; color: #4f46e5; }
+                        h2 { color: #6b7280; border-bottom: 2px solid #4f46e5; padding-bottom: 10px; }
+                        .score-box {
+                            background: #f0f4ff;
+                            border-left: 4px solid #4f46e5;
+                            padding: 15px;
+                            margin: 15px 0;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 15px 0;
+                        }
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 12px;
+                            text-align: left;
+                        }
+                        th {
+                            background: #f3f4f6;
+                            font-weight: bold;
+                        }
+                        .correct { color: #10b981; font-weight: bold; }
+                        .wrong { color: #ef4444; font-weight: bold; }
+                        .page-break { page-break-after: always; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Exam Results Report</h1>
+                    <h2>${examTitle}</h2>
+                    
+                    <div class="score-box">
+                        <strong>Score:</strong> ${currentResult.score}/${currentResult.total} (${currentResult.percentage}%)<br>
+                        <strong>Status:</strong> ${currentResult.status}<br>
+                        <strong>Time Spent:</strong> ${Math.floor(currentResult.timeSpent / 60)} minutes<br>
+                        <strong>Date:</strong> ${new Date(currentResult.submittedAt).toLocaleDateString()}
+                    </div>
+
+                    <h2>Answer Summary</h2>
+                    <table>
+                        <tr>
+                            <th>Question</th>
+                            <th>Your Answer</th>
+                            <th>Correct Answer</th>
+                            <th>Status</th>
+                        </tr>
+                        ${currentResult.results.map(r => `
+                            <tr>
+                                <td>${r.questionIndex}</td>
+                                <td>${r.userAnswer || 'Not answered'}</td>
+                                <td>${r.correctAnswer}</td>
+                                <td><span class="${r.isCorrect ? 'correct' : 'wrong'}">${r.isCorrect ? 'Correct' : 'Wrong'}</span></td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                    
+                    <div class="score-box">
+                        <strong>Correct Answers:</strong> ${currentResult.results.filter(r => r.isCorrect).length}<br>
+                        <strong>Wrong Answers:</strong> ${currentResult.results.filter(r => !r.isCorrect && r.userAnswer).length}<br>
+                        <strong>Unanswered:</strong> ${currentResult.results.filter(r => !r.userAnswer).length}
+                    </div>
+                </body>
+                </html>
+            `;
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+            }, 250);
+        }
+    </script>
+</body>
+</html>
