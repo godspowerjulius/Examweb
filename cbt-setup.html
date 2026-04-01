@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CBT Exam Setup - NaijaExams</title>
+    
+    <!-- 🔐 ROUTE PROTECTION -->
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/cbt-engine.js"></script>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-14 sm:h-16">
+                
+                <!-- Logo -->
+                <a href="index.html" class="flex items-center space-x-2">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white text-sm sm:text-lg"></i>
+                    </div>
+                    <span class="text-lg sm:text-xl font-bold text-gray-900">NaijaExams</span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="index.html" data-nav-link class="text-gray-700 hover:text-indigo-600 transition text-sm">Home</a>
+                    <a href="dashboard.html" data-nav-link data-protected-link class="text-gray-700 hover:text-indigo-600 transition text-sm">Dashboard</a>
+                    <a href="profile.html" data-nav-link data-protected-link class="text-gray-700 hover:text-indigo-600 transition text-sm">Profile</a>
+
+                    <!-- User Menu -->
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-700">Welcome, <span data-username>User</span>!</span>
+                        <button data-logout class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium">Logout</button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden text-2xl text-gray-700 hover:text-indigo-600">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-4 space-y-3">
+                <a href="index.html" data-nav-link class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-lg transition">Home</a>
+                <a href="dashboard.html" data-nav-link class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-lg transition">Dashboard</a>
+                <a href="profile.html" data-nav-link class="block px-3 py-2 text-gray-700 hover:bg-indigo-50 rounded-lg transition">Profile</a>
+
+                <hr class="my-3">
+
+                <p class="px-3 py-2 text-sm text-gray-700">Welcome, <span data-username>User</span>!</p>
+                <button data-logout class="w-full px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-center">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">Start an Exam</h1>
+            <p class="text-base sm:text-lg text-gray-600">Configure your CBT exam settings and begin practicing</p>
+        </div>
+
+        <!-- Main Setup Card -->
+        <div class="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 shadow-lg">
+            <form id="examSetupForm" class="space-y-8">
+                
+                <!-- Step 1: Exam Type -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-bold">1</div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 ml-4">Choose Exam Type</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- JAMB -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="examType" value="jamb" class="hidden peer" onchange="updateSubjects()">
+                            <div class="border-2 border-gray-300 peer-checked:border-purple-600 peer-checked:bg-purple-50 rounded-xl p-6 hover:border-purple-400 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition">
+                                        <i class="fas fa-laptop text-purple-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">JAMB</p>
+                                        <p class="text-sm text-gray-500">UTME Exam</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- WAEC -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="examType" value="waec" class="hidden peer" onchange="updateSubjects()">
+                            <div class="border-2 border-gray-300 peer-checked:border-green-600 peer-checked:bg-green-50 rounded-xl p-6 hover:border-green-400 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition">
+                                        <i class="fas fa-certificate text-green-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">WAEC</p>
+                                        <p class="text-sm text-gray-500">SSCE Exam</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- NECO -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="examType" value="neco" class="hidden peer" onchange="updateSubjects()">
+                            <div class="border-2 border-gray-300 peer-checked:border-orange-600 peer-checked:bg-orange-50 rounded-xl p-6 hover:border-orange-400 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition">
+                                        <i class="fas fa-award text-orange-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">NECO</p>
+                                        <p class="text-sm text-gray-500">SSCE Exam</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- IJMB -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="examType" value="ijmb" class="hidden peer" onchange="updateSubjects()">
+                            <div class="border-2 border-gray-300 peer-checked:border-blue-600 peer-checked:bg-blue-50 rounded-xl p-6 hover:border-blue-400 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition">
+                                        <i class="fas fa-university text-blue-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">IJMB</p>
+                                        <p class="text-sm text-gray-500">A-Level Exam</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Post-UTME -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="examType" value="post-utme" class="hidden peer" onchange="updateSubjects()">
+                            <div class="border-2 border-gray-300 peer-checked:border-red-600 peer-checked:bg-red-50 rounded-xl p-6 hover:border-red-400 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition">
+                                        <i class="fas fa-school text-red-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">Post-UTME</p>
+                                        <p class="text-sm text-gray-500">Screening Exam</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Other Exams -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="examType" value="other-exams" class="hidden peer" onchange="updateSubjects()">
+                            <div class="border-2 border-gray-300 peer-checked:border-teal-600 peer-checked:bg-teal-50 rounded-xl p-6 hover:border-teal-400 transition">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-teal-200 transition">
+                                        <i class="fas fa-ellipsis-h text-teal-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900">Others</p>
+                                        <p class="text-sm text-gray-500">Other Exams</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Step 2: Subject Selection -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-bold">2</div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 ml-4">Select Subject</h2>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Subject <span class="text-red-600">*</span></label>
+                        <select id="subjectSelect" name="subject" class="w-full px-4 sm:px-6 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 text-base" required disabled>
+                            <option value="">Select an exam type first...</option>
+                        </select>
+                        <p class="text-sm text-gray-500 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Available subjects will appear after selecting exam type
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Exam Settings -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-bold">3</div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 ml-4">Exam Settings</h2>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-6 space-y-6">
+                        <!-- Number of Questions -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Number of Questions</label>
+                            <input type="number" id="numQuestions" name="numQuestions" min="5" max="200" placeholder="Leave empty for all available questions" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-lightbulb mr-1"></i>
+                                Leave empty to use all available questions
+                            </p>
+                        </div>
+
+                        <!-- Shuffle Questions -->
+                        <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+                            <input type="checkbox" id="shuffleQuestions" name="shuffle" checked class="w-5 h-5 text-indigo-600 rounded cursor-pointer">
+                            <label for="shuffleQuestions" class="ml-3 cursor-pointer">
+                                <p class="font-medium text-gray-900">Shuffle Questions</p>
+                                <p class="text-xs text-gray-500">Questions will appear in random order</p>
+                            </label>
+                        </div>
+
+                        <!-- Show Answers After Exam -->
+                        <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+                            <input type="checkbox" id="showAnswers" name="showAnswers" checked class="w-5 h-5 text-indigo-600 rounded cursor-pointer">
+                            <label for="showAnswers" class="ml-3 cursor-pointer">
+                                <p class="font-medium text-gray-900">Show Correct Answers</p>
+                                <p class="text-xs text-gray-500">View answers after submitting exam</p>
+                            </label>
+                        </div>
+
+                        <!-- Allow Review -->
+                        <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+                            <input type="checkbox" id="allowReview" name="allowReview" checked class="w-5 h-5 text-indigo-600 rounded cursor-pointer">
+                            <label for="allowReview" class="ml-3 cursor-pointer">
+                                <p class="font-medium text-gray-900">Review Before Submit</p>
+                                <p class="text-xs text-gray-500">Review all answers before submission</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Information Card -->
+                <div id="examInfo" class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 hidden">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                        Exam Information
+                    </h3>
+                    <div class="grid sm:grid-cols-2 gap-6 text-sm">
+                        <div>
+                            <p class="text-gray-600 mb-1">Exam Type</p>
+                            <p class="font-bold text-gray-900" id="infoExamType">-</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 mb-1">Subject</p>
+                            <p class="font-bold text-gray-900" id="infoSubject">-</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 mb-1">Duration</p>
+                            <p class="font-bold text-gray-900" id="infoDuration">-</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 mb-1">Available Questions</p>
+                            <p class="font-bold text-gray-900" id="infoQuestions">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Instructions -->
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-6">
+                    <h3 class="font-bold text-gray-900 mb-3 flex items-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                        Important Instructions
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span>This exam cannot be paused once started</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span>Answer all questions you can before time runs out</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span>You can flag questions to review later</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-600 mr-3 mt-0.5 flex-shrink-0"></i>
+                            <span>Submit before time expires to save your answers</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Agreement Checkbox -->
+                <div class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <input type="checkbox" id="agreeTerms" class="w-5 h-5 text-indigo-600 rounded cursor-pointer mt-0.5" required>
+                    <label for="agreeTerms" class="ml-3 cursor-pointer">
+                        <p class="text-sm text-gray-700">
+                            I have read the instructions and understand the exam rules
+                        </p>
+                    </label>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-between pt-6">
+                    <a href="dashboard.html" class="px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-bold text-center">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-bold" id="startExamBtn" disabled>
+                        <i class="fas fa-play mr-2"></i>Start Exam
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <script>
+        const examTypeRadios = document.querySelectorAll('input[name="examType"]');
+        const subjectSelect = document.getElementById('subjectSelect');
+        const examForm = document.getElementById('examSetupForm');
+        const startExamBtn = document.getElementById('startExamBtn');
+        const agreeTerms = document.getElementById('agreeTerms');
+
+        // Initialize
+        checkAdminAccess();
+
+        // Update subjects when exam type changes
+        examTypeRadios.forEach(radio => {
+            radio.addEventListener('change', updateSubjects);
+        });
+
+        // Enable/disable submit button
+        document.getElementById('numQuestions').addEventListener('input', updateExamInfo);
+        subjectSelect.addEventListener('change', updateExamInfo);
+        agreeTerms.addEventListener('change', () => {
+            startExamBtn.disabled = !agreeTerms.checked || !subjectSelect.value;
+        });
+
+        function updateSubjects() {
+            const selectedExam = document.querySelector('input[name="examType"]:checked');
+            if (!selectedExam) return;
+
+            const examType = selectedExam.value;
+            const questions = getFromStorage("examPortalQuestions", [])
+                .filter(q => q.examType === examType);
+            
+            const subjects = [...new Set(questions.map(q => q.subject))];
+
+            if (subjects.length === 0) {
+                showToast(`No questions available for ${examType.toUpperCase()} yet`, 'warning');
+                subjectSelect.innerHTML = '<option value="">No subjects available</option>';
+                subjectSelect.disabled = true;
+                return;
+            }
+
+            subjectSelect.innerHTML = '<option value="">Select a subject...</option>';
+            subjects.forEach(subject => {
+                const count = questions.filter(q => q.subject === subject).length;
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = `${subject} (${count} questions)`;
+                subjectSelect.appendChild(option);
+            });
+
+            subjectSelect.disabled = false;
+            updateExamInfo();
+        }
+
+        function updateExamInfo() {
+            const selectedExam = document.querySelector('input[name="examType"]:checked');
+            const selectedSubject = subjectSelect.value;
+
+            if (!selectedExam || !selectedSubject) {
+                document.getElementById('examInfo').classList.add('hidden');
+                startExamBtn.disabled = true;
+                return;
+            }
+
+            const examType = selectedExam.value;
+            const questions = getFromStorage("examPortalQuestions", [])
+                .filter(q => q.examType === examType && q.subject === selectedSubject);
+
+            if (questions.length === 0) {
+                startExamBtn.disabled = true;
+                return;
+            }
+
+            const durations = {
+                'jamb': 120,
+                'waec': 180,
+                'neco': 180,
+                'ijmb': 150,
+                'post-utme': 120,
+                'other-exams': 120
+            };
+
+            document.getElementById('infoExamType').textContent = examType.toUpperCase();
+            document.getElementById('infoSubject').textContent = selectedSubject;
+            document.getElementById('infoDuration').textContent = `${durations[examType]} minutes`;
+            document.getElementById('infoQuestions').textContent = questions.length;
+
+            document.getElementById('examInfo').classList.remove('hidden');
+            startExamBtn.disabled = !agreeTerms.checked;
+        }
+
+        // Form submission
+        examForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const examType = document.querySelector('input[name="examType"]:checked').value;
+            const subject = subjectSelect.value;
+            const numQuestions = document.getElementById('numQuestions').value;
+
+            if (!examType || !subject) {
+                showToast('Please select exam type and subject', 'error');
+                return;
+            }
+
+            // Save settings
+            saveToStorage('examSettings', {
+                examType,
+                subject,
+                numQuestions: numQuestions ? parseInt(numQuestions) : null,
+                shuffle: document.getElementById('shuffleQuestions').checked,
+                showAnswers: document.getElementById('showAnswers').checked,
+                allowReview: document.getElementById('allowReview').checked
+            });
+
+            // Initialize exam
+            if (initializeExam(examType, subject, numQuestions ? parseInt(numQuestions) : null)) {
+                showToast('Exam started! Good luck!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'cbt-exam.html';
+                }, 800);
+            }
+        });
+
+        function checkAdminAccess() {
+            const user = getCurrentUser();
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>
