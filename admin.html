@@ -9,7 +9,6 @@
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/guard.js"></script>
-    <script src="js/admin.js"></script>
     <script src="js/navigation.js"></script>
     
     <!-- CDNs -->
@@ -53,7 +52,7 @@
 
                 <!-- User Menu -->
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-700">Admin: <span id="adminName">User</span></span>
+                    <span class="text-sm text-gray-700 hidden sm:inline">Admin: <span id="adminName" class="font-semibold">Loading...</span></span>
                     <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm font-medium">Logout</button>
                 </div>
             </div>
@@ -64,29 +63,29 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
         <!-- Tabs Navigation -->
-        <div class="flex flex-wrap gap-2 mb-6">
-            <button class="tab-btn active bg-red-600 text-white px-4 py-2 rounded-lg transition" data-tab="dashboard">
+        <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+            <button class="tab-btn active bg-red-600 text-white px-4 py-2 rounded-lg transition whitespace-nowrap font-semibold" data-tab="dashboard">
                 <i class="fas fa-chart-pie mr-2"></i>Dashboard
             </button>
-            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border hover:bg-gray-50 transition" data-tab="users">
+            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition whitespace-nowrap" data-tab="users">
                 <i class="fas fa-users mr-2"></i>Users
             </button>
-            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border hover:bg-gray-50 transition" data-tab="questions">
+            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition whitespace-nowrap" data-tab="questions">
                 <i class="fas fa-question-circle mr-2"></i>Questions
             </button>
-            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border hover:bg-gray-50 transition" data-tab="payments">
+            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition whitespace-nowrap" data-tab="payments">
                 <i class="fas fa-credit-card mr-2"></i>Payments
             </button>
-            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border hover:bg-gray-50 transition" data-tab="activity">
+            <button class="tab-btn bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition whitespace-nowrap" data-tab="activity">
                 <i class="fas fa-history mr-2"></i>Activity Log
             </button>
         </div>
 
         <!-- DASHBOARD TAB -->
         <div id="dashboard" class="tab-content">
-            <div class="grid md:grid-cols-4 gap-4 mb-8">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <!-- Total Users -->
-                <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-blue-500">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm mb-1">Total Users</p>
@@ -99,7 +98,7 @@
                 </div>
 
                 <!-- Active Today -->
-                <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-green-500">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm mb-1">Active Today</p>
@@ -112,7 +111,7 @@
                 </div>
 
                 <!-- Total Exams Taken -->
-                <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-purple-500">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm mb-1">Exams Taken</p>
@@ -125,7 +124,7 @@
                 </div>
 
                 <!-- Average Score -->
-                <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 border-yellow-500">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm mb-1">Avg Score</p>
@@ -144,7 +143,7 @@
                 <div class="bg-white rounded-xl p-6 shadow-sm">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Questions by Exam</h3>
                     <div id="questionsStats" class="space-y-3">
-                        <!-- Populated by JS -->
+                        <p class="text-gray-500 text-center py-4">Loading...</p>
                     </div>
                 </div>
 
@@ -176,7 +175,7 @@
         <!-- USERS TAB -->
         <div id="users" class="tab-content hidden">
             <div class="bg-white rounded-xl p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">User Login History</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Registered Users</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
@@ -186,11 +185,11 @@
                                 <th class="px-4 py-3 text-left font-semibold text-gray-900">Level</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-900">Registered</th>
                                 <th class="px-4 py-3 text-left font-semibold text-gray-900">Last Login</th>
-                                <th class="px-4 py-3 text-left font-semibold text-gray-900">Action</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-900">Role</th>
                             </tr>
                         </thead>
                         <tbody id="usersTable">
-                            <!-- Populated by JS -->
+                            <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Loading users...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -274,7 +273,7 @@
             <div class="bg-white rounded-xl p-6 shadow-sm">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">All Questions</h3>
                 <div id="questionsList" class="space-y-4">
-                    <!-- Populated by JS -->
+                    <p class="text-center text-gray-500 py-4">Loading questions...</p>
                 </div>
             </div>
         </div>
@@ -296,7 +295,7 @@
                             </tr>
                         </thead>
                         <tbody id="paymentsTable">
-                            <!-- Populated by JS -->
+                            <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No payments yet</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -308,7 +307,7 @@
             <div class="bg-white rounded-xl p-6 shadow-sm">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Admin Activity Log</h3>
                 <div id="activityLog" class="space-y-3">
-                    <!-- Populated by JS -->
+                    <p class="text-center text-gray-500 py-4">No activity yet</p>
                 </div>
             </div>
         </div>
@@ -316,15 +315,19 @@
     </main>
 
     <script>
+        const QUESTIONS_KEY = "examPortalQuestions";
+        const PAYMENTS_KEY = "examPortalPayments";
+        const ACTIVITY_KEY = "adminActivityLogs";
+
         // Initialize admin dashboard
         document.addEventListener('DOMContentLoaded', () => {
             if (!checkAdminAccess()) return;
             
             // Set admin name
             const user = getCurrentUser();
-            document.getElementById('adminName').textContent = user.fullName;
+            document.getElementById('adminName').textContent = user.fullName || 'Admin';
 
-            // Load dashboard data
+            // Load all data
             loadDashboardStats();
             loadUsersTable();
             loadQuestionsList();
@@ -333,25 +336,19 @@
 
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const tabName = e.currentTarget.dataset.tab;
-                    switchTab(tabName);
-                });
+                btn.addEventListener('click', switchTab);
             });
 
             // Add question form
-            document.getElementById('addQuestionForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitQuestion();
-            });
+            document.getElementById('addQuestionForm').addEventListener('submit', submitQuestion);
 
             // Logout
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                logoutUser();
-            });
+            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
         });
 
-        function switchTab(tabName) {
+        function switchTab(e) {
+            const tabName = e.target.closest('.tab-btn').dataset.tab;
+            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
@@ -360,71 +357,94 @@
             // Remove active state from buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-red-600', 'text-white');
-                btn.classList.add('bg-white', 'text-gray-700', 'border');
+                btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300');
             });
 
             // Show selected tab
             document.getElementById(tabName).classList.remove('hidden');
 
             // Set button active state
-            event.target.classList.add('bg-red-600', 'text-white');
-            event.target.classList.remove('bg-white', 'text-gray-700', 'border');
+            e.target.closest('.tab-btn').classList.add('bg-red-600', 'text-white');
+            e.target.closest('.tab-btn').classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-300');
         }
 
         function loadDashboardStats() {
-            const stats = getUserStats();
-            document.getElementById('totalUsers').textContent = stats.totalUsers;
-            document.getElementById('activeToday').textContent = stats.activeToday;
-            document.getElementById('totalExams').textContent = stats.totalExamsTaken;
-            document.getElementById('avgScore').textContent = stats.averageScore + '%';
+            const users = getAllUsers();
+            const results = getFromStorage("examPortalResults", []);
+            const questions = getFromStorage(QUESTIONS_KEY, []);
+            const payments = getFromStorage(PAYMENTS_KEY, []);
 
-            // Question stats
-            const questionStats = getQuestionStats();
+            // Calculate stats
+            const today = new Date().toDateString();
+            const activeToday = users.filter(u => {
+                const lastActive = new Date(u.lastActive || u.createdAt).toDateString();
+                return lastActive === today;
+            }).length;
+
+            const avgScore = results.length > 0 
+                ? Math.round(results.reduce((sum, r) => sum + (r.percentage || 0), 0) / results.length)
+                : 0;
+
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('activeToday').textContent = activeToday;
+            document.getElementById('totalExams').textContent = results.length;
+            document.getElementById('avgScore').textContent = avgScore + '%';
+
+            // Questions stats
             let questionsHTML = `<div class="flex justify-between items-center pb-2 border-b">
                 <span class="text-gray-600">Total Questions</span>
-                <span class="text-lg font-semibold">${questionStats.total}</span>
+                <span class="text-lg font-semibold">${questions.length}</span>
             </div>`;
 
-            for (let exam in questionStats.byExam) {
+            const exams = ['jamb', 'waec', 'neco', 'ijmb', 'post-utme', 'other-exams'];
+            exams.forEach(exam => {
+                const count = questions.filter(q => q.examType === exam).length;
                 questionsHTML += `<div class="flex justify-between items-center pb-2">
                     <span class="text-gray-600">${exam.toUpperCase()}</span>
-                    <span class="text-lg font-semibold">${questionStats.byExam[exam]}</span>
+                    <span class="text-lg font-semibold">${count}</span>
                 </div>`;
-            }
+            });
             document.getElementById('questionsStats').innerHTML = questionsHTML;
 
             // Payment stats
-            const paymentStats = getPaymentStats();
-            document.getElementById('totalRevenue').textContent = '₦' + paymentStats.totalRevenue.toLocaleString();
-            document.getElementById('completedPayments').textContent = paymentStats.completed;
-            document.getElementById('pendingPayments').textContent = paymentStats.pending;
-            document.getElementById('failedPayments').textContent = paymentStats.failed;
+            const completedPayments = payments.filter(p => p.status === 'completed').length;
+            const totalRevenue = payments
+                .filter(p => p.status === 'completed')
+                .reduce((sum, p) => sum + (p.amount || 0), 0);
+
+            document.getElementById('totalRevenue').textContent = '₦' + totalRevenue.toLocaleString();
+            document.getElementById('completedPayments').textContent = completedPayments;
+            document.getElementById('pendingPayments').textContent = payments.filter(p => p.status === 'pending').length;
+            document.getElementById('failedPayments').textContent = payments.filter(p => p.status === 'failed').length;
         }
 
         function loadUsersTable() {
-            const users = getUserLoginHistory();
+            const users = getAllUsers();
             let html = '';
 
             users.forEach(user => {
+                const registeredDate = new Date(user.createdAt).toLocaleDateString();
+                const lastLoginDate = new Date(user.lastActive || user.createdAt).toLocaleDateString();
+                const roleColor = user.isAdmin ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700';
+                const roleText = user.isAdmin ? 'Admin' : 'User';
+
                 html += `
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="px-4 py-3">${user.name}</td>
+                        <td class="px-4 py-3">${user.fullName}</td>
                         <td class="px-4 py-3">${user.email}</td>
                         <td class="px-4 py-3">${user.level || 'N/A'}</td>
-                        <td class="px-4 py-3">${user.registeredAt}</td>
-                        <td class="px-4 py-3">${user.lastLogin}</td>
-                        <td class="px-4 py-3">
-                            <button onclick="viewUserDetails('${user.id}')" class="text-red-600 hover:underline text-xs">View</button>
-                        </td>
+                        <td class="px-4 py-3">${registeredDate}</td>
+                        <td class="px-4 py-3">${lastLoginDate}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-semibold ${roleColor}">${roleText}</span></td>
                     </tr>
                 `;
             });
 
-            document.getElementById('usersTable').innerHTML = html || '<tr><td colspan="6" class="px-4 py-3 text-center text-gray-500">No users found</td></tr>';
+            document.getElementById('usersTable').innerHTML = html || '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No users found</td></tr>';
         }
 
         function loadQuestionsList() {
-            const questions = getAllQuestions();
+            const questions = getFromStorage(QUESTIONS_KEY, []);
             let html = '';
 
             questions.forEach((q, idx) => {
@@ -437,7 +457,7 @@
                                     <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">${q.examType.toUpperCase()}</span>
                                     <span class="ml-2 text-gray-500">${q.subject}</span>
                                 </p>
-                                <div class="mt-2 text-sm text-gray-700">
+                                <div class="mt-2 text-sm text-gray-700 space-y-1">
                                     <p>A) ${q.optionA}</p>
                                     <p>B) ${q.optionB}</p>
                                     <p>C) ${q.optionC}</p>
@@ -445,32 +465,32 @@
                                     <p class="mt-1 text-green-700"><strong>Answer: ${q.correctAnswer}</strong></p>
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button onclick="deleteQuestion('${q.id}')" class="text-red-600 hover:underline text-xs">Delete</button>
-                            </div>
+                            <button onclick="deleteQuestionItem('${q.id}')" class="text-red-600 hover:text-red-700 text-xs font-semibold ml-4">Delete</button>
                         </div>
                     </div>
                 `;
             });
 
-            document.getElementById('questionsList').innerHTML = html || '<p class="text-center text-gray-500">No questions added yet</p>';
+            document.getElementById('questionsList').innerHTML = html || '<p class="text-center text-gray-500 py-4">No questions added yet</p>';
         }
 
         function loadPaymentsTable() {
-            const payments = getAllPayments();
+            const payments = getFromStorage(PAYMENTS_KEY, []);
             let html = '';
 
             payments.forEach(p => {
                 const statusColor = p.status === 'completed' ? 'text-green-600' : p.status === 'pending' ? 'text-yellow-600' : 'text-red-600';
+                const date = new Date(p.createdAt).toLocaleDateString();
+
                 html += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-4 py-3">${p.id}</td>
                         <td class="px-4 py-3">${p.userId || 'N/A'}</td>
-                        <td class="px-4 py-3">₦${p.amount || 0}</td>
-                        <td class="px-4 py-3"><span class="${statusColor} font-semibold">${p.status}</span></td>
-                        <td class="px-4 py-3">${new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td class="px-4 py-3">₦${(p.amount || 0).toLocaleString()}</td>
+                        <td class="px-4 py-3"><span class="${statusColor} font-semibold capitalize">${p.status}</span></td>
+                        <td class="px-4 py-3">${date}</td>
                         <td class="px-4 py-3">
-                            <select onchange="updatePaymentStatus('${p.id}', this.value)" class="px-2 py-1 border border-gray-300 rounded text-xs">
+                            <select onchange="updatePaymentStatus('${p.id}', this.value)" class="px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none">
                                 <option value="pending" ${p.status === 'pending' ? 'selected' : ''}>Pending</option>
                                 <option value="completed" ${p.status === 'completed' ? 'selected' : ''}>Completed</option>
                                 <option value="failed" ${p.status === 'failed' ? 'selected' : ''}>Failed</option>
@@ -480,16 +500,16 @@
                 `;
             });
 
-            document.getElementById('paymentsTable').innerHTML = html || '<tr><td colspan="6" class="px-4 py-3 text-center text-gray-500">No payments found</td></tr>';
+            document.getElementById('paymentsTable').innerHTML = html || '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">No payments found</td></tr>';
         }
 
         function loadActivityLog() {
-            const logs = getActivityLogs();
+            const logs = getFromStorage(ACTIVITY_KEY, []).slice(-20).reverse();
             let html = '';
 
             logs.forEach(log => {
                 html += `
-                    <div class="border-l-4 border-red-600 pl-4 py-3">
+                    <div class="border-l-4 border-red-600 pl-4 py-3 hover:bg-gray-50 rounded">
                         <p class="font-semibold text-gray-900">${log.action}</p>
                         <p class="text-sm text-gray-600">${log.details}</p>
                         <p class="text-xs text-gray-500 mt-1">By: ${log.admin} | ${new Date(log.timestamp).toLocaleString()}</p>
@@ -497,7 +517,7 @@
                 `;
             });
 
-            document.getElementById('activityLog').innerHTML = html || '<p class="text-center text-gray-500">No activity yet</p>';
+            document.getElementById('activityLog').innerHTML = html || '<p class="text-center text-gray-500 py-4">No activity yet</p>';
         }
 
         function toggleQuestionForm() {
@@ -505,8 +525,11 @@
             form.classList.toggle('hidden');
         }
 
-        function submitQuestion() {
+        function submitQuestion(e) {
+            e.preventDefault();
+
             const question = {
+                id: 'q_' + Date.now(),
                 examType: document.getElementById('examType').value,
                 subject: document.getElementById('subject').value,
                 question: document.getElementById('questionText').value,
@@ -514,45 +537,77 @@
                 optionB: document.getElementById('optionB').value,
                 optionC: document.getElementById('optionC').value,
                 optionD: document.getElementById('optionD').value,
-                correctAnswer: document.getElementById('correctAnswer').value
+                correctAnswer: document.getElementById('correctAnswer').value,
+                createdAt: new Date().toISOString()
             };
 
-            const result = addQuestion(question);
-            if (result.success) {
-                showToast('Question added successfully', 'success');
-                document.getElementById('addQuestionForm').reset();
-                toggleQuestionForm();
-                loadQuestionsList();
-                logActivity('Add Question', `Added question for ${question.examType} - ${question.subject}`);
-            } else {
-                showToast('Error adding question', 'error');
-            }
+            const questions = getFromStorage(QUESTIONS_KEY, []);
+            questions.push(question);
+            saveToStorage(QUESTIONS_KEY, questions);
+
+            showToast('Question added successfully', 'success');
+            document.getElementById('addQuestionForm').reset();
+            toggleQuestionForm();
+            loadQuestionsList();
+            logAdminActivity('Add Question', `Added question for ${question.examType} - ${question.subject}`);
         }
 
-        function deleteQuestion(questionId) {
-            if (!confirm('Are you sure you want to delete this question?')) return;
+        function deleteQuestionItem(questionId) {
+            if (!confirm('Delete this question?')) return;
 
-            const result = deleteQuestion(questionId);
-            if (result.success) {
-                showToast('Question deleted', 'success');
-                loadQuestionsList();
-                logActivity('Delete Question', `Deleted question ID: ${questionId}`);
-            }
+            let questions = getFromStorage(QUESTIONS_KEY, []);
+            questions = questions.filter(q => q.id !== questionId);
+            saveToStorage(QUESTIONS_KEY, questions);
+
+            showToast('Question deleted', 'success');
+            loadQuestionsList();
+            logAdminActivity('Delete Question', `Deleted question ID: ${questionId}`);
         }
 
         function updatePaymentStatus(paymentId, status) {
-            const result = updatePaymentStatus(paymentId, status);
-            if (result.success) {
+            const payments = getFromStorage(PAYMENTS_KEY, []);
+            const payment = payments.find(p => p.id === paymentId);
+
+            if (payment) {
+                payment.status = status;
+                payment.updatedAt = new Date().toISOString();
+                saveToStorage(PAYMENTS_KEY, payments);
+
                 showToast('Payment status updated', 'success');
                 loadPaymentsTable();
                 loadDashboardStats();
-                logActivity('Update Payment', `Updated payment ${paymentId} to ${status}`);
+                logAdminActivity('Update Payment', `Updated payment ${paymentId} to ${status}`);
             }
         }
 
-        function viewUserDetails(userId) {
-            showToast('User details loading...', 'info');
-            // Can expand this to show detailed user information
+        function logAdminActivity(action, details) {
+            const logs = getFromStorage(ACTIVITY_KEY, []);
+            const user = getCurrentUser();
+            logs.push({
+                id: 'log_' + Date.now(),
+                action,
+                details,
+                admin: user.fullName,
+                timestamp: new Date().toISOString()
+            });
+            saveToStorage(ACTIVITY_KEY, logs);
+        }
+
+        function checkAdminAccess() {
+            const user = getCurrentUser();
+            if (!user) {
+                showToast('Please login first', 'error');
+                window.location.href = 'login.html';
+                return false;
+            }
+            if (!user.isAdmin) {
+                showToast('Admin access required', 'error');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+                return false;
+            }
+            return true;
         }
     </script>
 </body>
