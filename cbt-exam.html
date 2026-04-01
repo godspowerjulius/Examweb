@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CBT Exam - NaijaExams</title>
+    
+    <!-- 🔐 ROUTE PROTECTION -->
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/guard.js"></script>
+    <script src="js/cbt-engine.js"></script>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f3f4f6;
+        }
+
+        .exam-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+        }
+
+        .exam-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .exam-title {
+            flex: 1;
+        }
+
+        .exam-title h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .exam-title p {
+            font-size: 0.875rem;
+            color: #e0e7ff;
+        }
+
+        .timer-box {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Monaco', 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .timer-label {
+            font-size: 0.75rem;
+            color: #e0e7ff;
+            margin-top: 0.25rem;
+        }
+
+        .timer-display.warning {
+            color: #fbbf24;
+            animation: pulse 1s infinite;
+        }
+
+        .timer-display.critical {
+            color: #f87171;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .exam-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 1rem 8rem 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .exam-container {
+                grid-template-columns: 1fr;
+                padding: 6rem 1rem 6rem 1rem;
+            }
+
+            .sidebar {
+                display: none !important;
+            }
+
+            .exam-header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .timer-box {
+                text-align: center;
+                min-width: auto;
+            }
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .question-number {
+            font-size: 0.875rem;
+            color: #6366f1;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .flag-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #fcd34d;
+        }
+
+        .flag-btn:hover {
+            background: #fde047;
+            transform: translateY(-2px);
+        }
+
+        .flag-btn.flagged {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .question-content {
+            padding: 2rem;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-button {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            padding: 1.25rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .option-button:hover {
+            border-color: #6366f1;
+            background: #f0f4ff;
+            transform: translateX(4px);
+        }
+
+        .option-button.selected {
+            border-color: #6366f1;
+            background: #eef2ff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .option-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #f3f4f6;
+            border-radius: 50%;
+            font-weight: 700;
+            color: #4b5563;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+
+        .option-button.selected .option-letter {
+            background: #6366f1;
+            color: white;
+            font-weight: 700;
+        }
+
+        .option-text {
+            flex: 1;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.prev {
+            background: #6b7280;
+            color: white;
+        }
+
+        .nav-btn.prev:hover:not(:disabled) {
+            background: #4b5563;
+        }
+
+        .nav-btn.next {
+            background: #6366f1;
+            color: white;
+        }
+
+        .nav-btn.next:hover:not(:disabled) {
+            background: #4f46e5;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 6rem;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #7c3aed 100%);
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            min-width: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .quit-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .quit-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* Question Tracker */
+        .tracker-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .tracker-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .tracker-item:hover {
+            transform: scale(1.1);
+        }
+
+        .tracker-item.current {
+            background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            transform: scale(1.15);
+        }
+
+        .tracker-item.answered {
+            background: #10b981;
+            color: white;
+        }
+
+        .tracker-item.flagged {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .tracker-item.unanswered {
+            background: #d1d5db;
+            color: #6b7280;
+        }
+
+        /* Mobile Bottom Bar */
+        .mobile-footer {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid #e5e7eb;
+            padding: 1rem;
+            z-index: 50;
+        }
+
+        .mobile-footer-content {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .mobile-nav-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-footer {
+                display: block;
+            }
+
+            .navigation-buttons {
+                display: none;
+            }
+
+            .exam-container {
+                padding: 6rem 1rem 8rem 1rem;
+            }
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <!-- Exam Header -->
+    <div class="exam-header">
+        <div class="exam-header-content">
+            <div class="exam-title">
+                <h2 id="examTitle">JAMB - Mathematics</h2>
+                <p id="questionNumber">Question 1 of 50</p>
+            </div>
+            
+            <!-- Timer -->
+            <div class="timer-box">
+                <div class="timer-display" id="timerDisplay">02:00:00</div>
+                <div class="timer-label">Time Remaining</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Exam Content -->
+    <div class="exam-container">
+        
+        <!-- Question Section -->
+        <div>
+            <!-- Question Card -->
+            <div class="question-card">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1 of 50</div>
+                    <div class="question-text" id="questionBox">
+                        Loading question...
+                    </div>
+                    <button class="flag-btn" id="flagBtn" onclick="flagQuestion()">
+                        <i class="fas fa-flag"></i>
+                        <span>Flag for Review</span>
+                    </button>
+                </div>
+
+                <!-- Options -->
+                <div class="question-content">
+                    <div class="options-container" id="optionsBox">
+                        <p class="text-center text-gray-500">Loading options...</p>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation-buttons">
+                    <button class="nav-btn prev" onclick="goToPreviousQuestion()" id="prevBtn">
+                        <i class="fas fa-chevron-left"></i>
+                        Previous
+                    </button>
+                    
+                    <button class="nav-btn next" onclick="goToNextQuestion()" id="nextBtn">
+                        Next
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            
+            <!-- Progress Card -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">
+                    <i class="fas fa-chart-pie text-indigo-600"></i>
+                    Progress
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%">0/50</div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn submit-btn" onclick="if(confirm('Submit exam now? Make sure you\'ve answered all questions you can.')) submitExam()">
+                        <i class="fas fa-check-circle"></i>
+                        Submit Exam
+                    </button>
+                    <button class="action-btn quit-btn" onclick="if(confirm('Quit exam? Your progress will be lost!')) window.location.href='dashboard.html'">
+                        <i class="fas fa-times-circle"></i>
+                        Quit Exam
+                    </button>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #10b981;"></div>
+                        <span>Answered</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #d1d5db;"></div>
+                        <span>Not Answered</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #f59e0b;"></div>
+                        <span>Flagged</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Tracker Card -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">
+                    <i class="fas fa-list-ol text-indigo-600"></i>
+                    Questions
+                </div>
+
+                <div class="tracker-grid scrollbar-hide" id="questionTracker">
+                    <p class="text-center text-gray-500 col-span-full py-4">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-footer">
+        <div class="mobile-footer-content">
+            <button class="mobile-nav-btn" style="background: #6b7280; color: white;" onclick="goToPreviousQuestion()">
+                <i class="fas fa-chevron-left"></i> Prev
+            </button>
+            <button class="mobile-nav-btn" style="background: #10b981; color: white;" onclick="if(confirm('Submit exam now?')) submitExam()">
+                <i class="fas fa-check"></i> Submit
+            </button>
+            <button class="mobile-nav-btn" style="background: #6366f1; color: white;" onclick="goToNextQuestion()">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize exam on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (!loadExamSession()) {
+                window.location.href = 'cbt-setup.html';
+                return;
+            }
+
+            // Render initial question
+            renderQuestion();
+            updateQuestionTracker();
+            updateProgressBar();
+            startExamTimer();
+
+            // Update title
+            document.title = `${examState.examType.toUpperCase()} - ${examState.subject} | NaijaExams`;
+
+            // Prevent accidental navigation
+            window.addEventListener('beforeunload', (e) => {
+                if (examState.questions.length > 0) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            // Update button states
+            updateNavigationButtons();
+        });
+
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').disabled = examState.currentQuestionIndex === 0;
+            document.getElementById('nextBtn').disabled = examState.currentQuestionIndex === examState.questions.length - 1;
+        }
+
+        function updateTimerDisplay() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            const hours = Math.floor(examState.timeLeft / 3600);
+            const minutes = Math.floor((examState.timeLeft % 3600) / 60);
+            const seconds = examState.timeLeft % 60;
+
+            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timerDisplay.textContent = timeString;
+
+            // Change color based on time remaining
+            timerDisplay.classList.remove('warning', 'critical');
+            if (examState.timeLeft <= 300) { // 5 minutes
+                timerDisplay.classList.add('critical');
+            } else if (examState.timeLeft <= 900) { // 15 minutes
+                timerDisplay.classList.add('warning');
+            }
+        }
+
+        function renderQuestion() {
+            const currentQuestion = examState.questions[examState.currentQuestionIndex];
+            const isFlagged = examState.flagged[examState.currentQuestionIndex];
+            
+            // Update question number
+            document.getElementById('questionNumber').textContent = `Question ${examState.currentQuestionIndex + 1} of ${examState.questions.length}`;
+            
+            // Update exam title
+            document.getElementById('examTitle').textContent = `${examState.examType.toUpperCase()} - ${examState.subject}`;
+
+            // Update question text
+            document.getElementById('questionBox').innerHTML = `
+                <div class="flex justify-between items-start">
+                    <span>${currentQuestion.question}</span>
+                </div>
+            `;
+
+            // Update flag button
+            const flagBtn = document.getElementById('flagBtn');
+            if (isFlagged) {
+                flagBtn.classList.add('flagged');
+                flagBtn.innerHTML = '<i class="fas fa-flag"></i> <span>Flagged for Review</span>';
+            } else {
+                flagBtn.classList.remove('flagged');
+                flagBtn.innerHTML = '<i class="fas fa-flag"></i> <span>Flag for Review</span>';
+            }
+
+            // Render options
+            const options = ['A', 'B', 'C', 'D'];
+            const optionTexts = [currentQuestion.optionA, currentQuestion.optionB, currentQuestion.optionC, currentQuestion.optionD];
+            const selectedAnswer = examState.answers[examState.currentQuestionIndex];
+
+            const optionsHTML = optionTexts.map((text, idx) => {
+                const letter = options[idx];
+                const isSelected = selectedAnswer === letter;
+                return `
+                    <button onclick="selectAnswer('${letter}')" class="option-button ${isSelected ? 'selected' : ''}">
+                        <div class="option-letter">${letter}</div>
+                        <div class="option-text">${text}</div>
+                    </button>
+                `;
+            }).join('');
+
+            document.getElementById('optionsBox').innerHTML = optionsHTML;
+            updateNavigationButtons();
+        }
+
+        function selectAnswer(letter) {
+            examState.answers[examState.currentQuestionIndex] = letter;
+            saveExamSession();
+            renderQuestion();
+            updateQuestionTracker();
+            updateProgressBar();
+        }
+
+        function flagQuestion() {
+            examState.flagged[examState.currentQuestionIndex] = !examState.flagged[examState.currentQuestionIndex];
+            saveExamSession();
+            updateQuestionTracker();
+            renderQuestion();
+        }
+
+        function goToNextQuestion() {
+            if (examState.currentQuestionIndex < examState.questions.length - 1) {
+                examState.currentQuestionIndex++;
+                saveExamSession();
+                renderQuestion();
+                updateQuestionTracker();
+                updateProgressBar();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function goToPreviousQuestion() {
+            if (examState.currentQuestionIndex > 0) {
+                examState.currentQuestionIndex--;
+                saveExamSession();
+                renderQuestion();
+                updateQuestionTracker();
+                updateProgressBar();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function jumpToQuestion(index) {
+            examState.currentQuestionIndex = index;
+            saveExamSession();
+            renderQuestion();
+            updateQuestionTracker();
+            updateProgressBar();
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const answeredCount = examState.answers.filter(a => a !== null).length;
+            const percentage = (answeredCount / examState.questions.length) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${answeredCount}/${examState.questions.length}`;
+        }
+
+        function updateQuestionTracker() {
+            const tracker = document.getElementById('questionTracker');
+            
+            const trackerHTML = examState.questions.map((_, index) => {
+                const answered = examState.answers[index] !== null;
+                const flagged = examState.flagged[index];
+                const current = index === examState.currentQuestionIndex;
+
+                let className = 'tracker-item ';
+                if (current) {
+                    className += 'current';
+                } else if (flagged && answered) {
+                    className += 'flagged';
+                } else if (flagged) {
+                    className += 'flagged';
+                } else if (answered) {
+                    className += 'answered';
+                } else {
+                    className += 'unanswered';
+                }
+
+                return `
+                    <button class="${className}" onclick="jumpToQuestion(${index})" title="Question ${index + 1}">
+                        ${index + 1}
+                    </button>
+                `;
+            }).join('');
+
+            tracker.innerHTML = trackerHTML;
+        }
+
+        function submitExam() {
+            clearInterval(examState.timerInterval);
+
+            const answeredCount = examState.answers.filter(a => a !== null).length;
+            const message = `You have answered ${answeredCount} out of ${examState.questions.length} questions.\n\nAre you absolutely sure you want to submit?`;
+            
+            const confirmed = confirm(message);
+            if (!confirmed) {
+                startExamTimer();
+                return;
+            }
+
+            // Calculate results
+            let score = 0;
+            const results = [];
+
+            examState.questions.forEach((question, index) => {
+                const userAnswer = examState.answers[index];
+                const correctAnswer = question.correctAnswer;
+                const isCorrect = userAnswer === correctAnswer;
+
+                if (isCorrect) score++;
+
+                results.push({
+                    questionIndex: index + 1,
+                    question: question.question,
+                    userAnswer: userAnswer,
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect,
+                    subject: question.subject
+                });
+            });
+
+            const percentage = Math.round((score / examState.questions.length) * 100);
+            const status = percentage >= 70 ? "Excellent" : percentage >= 50 ? "Pass" : "Fail";
+            const timeSpent = Math.floor((new Date() - new Date(examState.startedAt)) / 1000);
+
+            // Create result object
+            const result = {
+                id: 'result_' + Date.now(),
+                userId: getCurrentUser().id,
+                examType: examState.examType,
+                subject: examState.subject,
+                questions: examState.questions,
+                answers: examState.answers,
+                score: score,
+                total: examState.questions.length,
+                percentage: percentage,
+                status: status,
+                results: results,
+                submittedAt: new Date().toISOString(),
+                duration: examState.duration,
+                timeSpent: timeSpent
+            };
+
+            // Save result
+            const allResults = getFromStorage("examPortalResults", []);
+            allResults.push(result);
+            saveToStorage("examPortalResults", allResults);
+            saveToStorage("latestExamResult", result);
+
+            clearExamSession();
+            showToast('Exam submitted successfully!', 'success');
+            
+            setTimeout(() => {
+                window.location.href = `exam-results.html?resultId=${result.id}`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
