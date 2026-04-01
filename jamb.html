@@ -147,7 +147,7 @@
             </div>
         </div>
 
-        <!-- Subjects Section -->
+        <!-- JAMB Subjects Section -->
         <div class="bg-white rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
             <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">JAMB Subjects</h2>
             
@@ -274,23 +274,133 @@
             </div>
         </div>
 
-        <!-- Call to Action -->
-        <div data-guest-only class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-6 sm:p-8 text-white text-center">
-            <h2 class="text-2xl font-bold mb-3">Ready to Start Preparing?</h2>
-            <p class="text-purple-100 mb-6">Join thousands of students preparing for JAMB with NaijaExams</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="register.html" class="bg-white text-purple-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition font-semibold">Register Now</a>
-                <a href="login.html" class="bg-purple-500 text-white px-8 py-3 rounded-lg hover:bg-purple-400 transition font-semibold border border-white">Login</a>
+        <!-- Study Resources Section -->
+        <div class="bg-white rounded-xl p-6 sm:p-8 mb-8 shadow-sm">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Study Resources</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Study Materials -->
+                <div class="border-2 border-purple-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-book-open text-purple-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900">Study Materials</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Access comprehensive study guides, notes, and past questions to prepare effectively.</p>
+                    <button onclick="showToast('Coming soon!', 'info')" class="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition font-semibold text-sm">
+                        Explore Materials
+                    </button>
+                </div>
+
+                <!-- Video Tutorials -->
+                <div class="border-2 border-blue-200 rounded-lg p-6 hover:shadow-lg transition">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-video text-blue-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900">Video Tutorials</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Watch expert-explained video lessons covering all JAMB topics and concepts.</p>
+                    <button onclick="showToast('Coming soon!', 'info')" class="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition font-semibold text-sm">
+                        Watch Videos
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div data-user-only class="hidden bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl p-6 sm:p-8 text-white text-center">
-            <h2 class="text-2xl font-bold mb-3">Start Your JAMB Preparation</h2>
-            <p class="text-purple-100 mb-6">Begin practicing with our comprehensive JAMB questions and materials</p>
-            <a href="dashboard.html" class="bg-white text-purple-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition font-semibold inline-block">Go to Dashboard</a>
+        <!-- CBT Practice Section -->
+        <div class="bg-gradient-to-br from-purple-600 to-purple-800 text-white rounded-2xl p-8 sm:p-12 mb-8 shadow-lg">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-3">Ready to Practice?</h2>
+                <p class="text-purple-100 text-lg">Start your CBT practice exam now and track your progress</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <!-- Feature 1 -->
+                <div class="bg-white/10 rounded-lg p-6 backdrop-blur-sm border border-white/20">
+                    <div class="text-3xl mb-3">📊</div>
+                    <h3 class="font-bold mb-2">Real Exam Format</h3>
+                    <p class="text-sm text-purple-100">Practice with questions in the exact CBT format used in JAMB exams.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white/10 rounded-lg p-6 backdrop-blur-sm border border-white/20">
+                    <div class="text-3xl mb-3">⏱️</div>
+                    <h3 class="font-bold mb-2">Timed Sessions</h3>
+                    <p class="text-sm text-purple-100">Take timed exams to improve your speed and time management skills.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white/10 rounded-lg p-6 backdrop-blur-sm border border-white/20">
+                    <div class="text-3xl mb-3">📈</div>
+                    <h3 class="font-bold mb-2">Track Progress</h3>
+                    <p class="text-sm text-purple-100">Monitor your scores and improvements over time.</p>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div data-guest-only class="text-center">
+                <p class="text-purple-100 mb-4">Create an account to start practicing JAMB questions</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="register.html" class="bg-white text-purple-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition font-bold">
+                        Register Now
+                    </a>
+                    <a href="login.html" class="bg-purple-500 text-white px-8 py-3 rounded-lg hover:bg-purple-400 transition font-bold border border-white">
+                        Login
+                    </a>
+                </div>
+            </div>
+
+            <div data-user-only class="hidden text-center">
+                <a href="cbt-setup.html" class="inline-block bg-white text-purple-600 px-12 py-4 rounded-lg hover:bg-gray-100 transition font-bold text-lg">
+                    <i class="fas fa-play-circle mr-2"></i>Start CBT Exam
+                </a>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="bg-white rounded-xl p-6 sm:p-8 shadow-sm">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <div class="border-b pb-4">
+                    <h3 class="font-bold text-gray-900 mb-2 cursor-pointer hover:text-purple-600 transition">
+                        ➕ What is the difference between JAMB and other Nigerian exams?
+                    </h3>
+                    <p class="text-gray-600 text-sm hidden">JAMB is specifically for admission into 100-level courses in Nigerian universities, polytechnics, and colleges of education. Other exams like WAEC and NECO are for secondary school certification.</p>
+                </div>
+
+                <div class="border-b pb-4">
+                    <h3 class="font-bold text-gray-900 mb-2 cursor-pointer hover:text-purple-600 transition">
+                        ➕ How many times can I take the JAMB exam?
+                    </h3>
+                    <p class="text-gray-600 text-sm hidden">You can take JAMB as many times as you want until you gain admission, but it's advisable to practice thoroughly before sitting for the official exam.</p>
+                </div>
+
+                <div class="border-b pb-4">
+                    <h3 class="font-bold text-gray-900 mb-2 cursor-pointer hover:text-purple-600 transition">
+                        ➕ Are the practice questions from actual JAMB exams?
+                    </h3>
+                    <p class="text-gray-600 text-sm hidden">Our questions are carefully curated based on JAMB syllabus and past examination patterns to ensure you're practicing the right material.</p>
+                </div>
+
+                <div class="border-b pb-4">
+                    <h3 class="font-bold text-gray-900 mb-2 cursor-pointer hover:text-purple-600 transition">
+                        ➕ Can I retake the CBT practice exam?
+                    </h3>
+                    <p class="text-gray-600 text-sm hidden">Yes! You can take the CBT practice exam as many times as you want. Each attempt helps you improve and identify weak areas.</p>
+                </div>
+            </div>
         </div>
 
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8 mt-12 border-t">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+            <p>&copy; 2026 NaijaExams. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
