@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Mode</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .question { margin: 20px 0; }
+        #navigation { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Study Mode</h1>
+    <div id="questions-container"></div>
+    <div id="navigation">
+        <button id="prev-btn">Previous</button>
+        <button id="next-btn">Next</button>
+    </div>
+    <div id="progress-tracker"></div>
+    <div id="timer">Time: <span id="time">0</span> seconds</div>
+
+    <script>
+        const questions = [
+            { question: "What is 2 + 2?", answer: "4", explanation: "2 and 2 makes 4." },
+            { question: "What is the capital of France?", answer: "Paris", explanation: "The capital city of France is Paris." },
+            // Add more questions as needed.
+        ];
+        let currentQuestionIndex = 0;
+        let timer;
+        let seconds = 0;
+
+        function displayQuestion(index) {
+            const questionContainer = document.getElementById('questions-container');
+            questionContainer.innerHTML = `<div class='question'><strong>Question ${index + 1}:</strong> ${questions[index].question}</div>`;
+            questionContainer.innerHTML += `<div>Correct Answer: ${questions[index].answer}</div>`;
+            questionContainer.innerHTML += `<div>Explanation: ${questions[index].explanation}</div>`;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progressTracker = document.getElementById('progress-tracker');
+            progressTracker.innerHTML = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex);
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            }
+        });
+
+        function startTimer() {
+            timer = setInterval(() => {
+                seconds++;
+                document.getElementById('time').innerText = seconds;
+            }, 1000);
+        }
+
+        window.onload = () => {
+            displayQuestion(currentQuestionIndex);
+            startTimer();
+        };
+    </script>
+</body>
+</html>
