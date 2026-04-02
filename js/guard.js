@@ -11,7 +11,9 @@ const PROTECTED_ROUTES = [
   'post-utme.html',
   'other-exams.html',
   'profile.html',
-  'results.html'
+  'results.html',
+  'cbt-exam.html',
+  'cbt-study.html'
 ];
 
 function getCurrentPageFromURL() {

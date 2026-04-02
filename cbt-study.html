@@ -2,72 +2,211 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Mode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Study Mode - NaijaExams</title>
+    
+    <!-- 🔐 ROUTE PROTECTION -->
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/guard.js"></script>
+    
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
     <style>
-        body { font-family: Arial, sans-serif; }
-        .question { margin: 20px 0; }
-        #navigation { margin-top: 20px; }
+        .study-mode-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .study-container {
+            max-width: 1000px;
+        }
+        .study-question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .study-option {
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .study-option:hover {
+            background: #e0e7ff;
+            border-color: #6366f1;
+        }
+        .study-option.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        .solution-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin-top: 16px;
+            border-radius: 8px;
+        }
     </style>
 </head>
-<body>
-    <h1>Study Mode</h1>
-    <div id="questions-container"></div>
-    <div id="navigation">
-        <button id="prev-btn">Previous</button>
-        <button id="next-btn">Next</button>
+<body class="bg-gray-50 font-sans text-gray-800">
+    
+    <!-- Header -->
+    <div class="study-mode-banner text-white py-8">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fas fa-book"></i> Study Mode
+                    </h1>
+                    <p class="text-green-100 mt-2">Learn with answers and solutions visible</p>
+                </div>
+                <a href="dashboard.html" class="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
     </div>
-    <div id="progress-tracker"></div>
-    <div id="timer">Time: <span id="time">0</span> seconds</div>
 
-    <script>
-        const questions = [
-            { question: "What is 2 + 2?", answer: "4", explanation: "2 and 2 makes 4." },
-            { question: "What is the capital of France?", answer: "Paris", explanation: "The capital city of France is Paris." },
-            // Add more questions as needed.
-        ];
-        let currentQuestionIndex = 0;
-        let timer;
-        let seconds = 0;
+    <!-- Main Content -->
+    <main class="study-container mx-auto px-4 py-8">
+        <!-- Question Display -->
+        <div id="questionDisplay" class="study-question-card">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                <span class="text-sm font-semibold text-indigo-600" id="questionNumber">Question 1 of 40</span>
+                <div class="flex gap-2">
+                    <button id="prevBtn" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 font-medium">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <button id="nextBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <h2 id="questionText" class="text-lg font-semibold mb-4 text-gray-900"></h2>
+            
+            <!-- Image if available -->
+            <img id="questionImage" src="" alt="Question" class="max-w-full mb-4 rounded-lg hidden">
+            
+            <!-- Options -->
+            <div id="optionsContainer" class="mb-4"></div>
+            
+            <!-- Solution (Always Visible in Study Mode) -->
+            <div id="solutionContainer" class="solution-box">
+                <h4 class="font-semibold text-yellow-800 mb-2">
+                    <i class="fas fa-lightbulb"></i> Solution & Explanation:
+                </h4>
+                <p id="solutionText" class="text-gray-800"></p>
+            </div>
+        </div>
 
-        function displayQuestion(index) {
-            const questionContainer = document.getElementById('questions-container');
-            questionContainer.innerHTML = `<div class='question'><strong>Question ${index + 1}:</strong> ${questions[index].question}</div>`;
-            questionContainer.innerHTML += `<div>Correct Answer: ${questions[index].answer}</div>`;
-            questionContainer.innerHTML += `<div>Explanation: ${questions[index].explanation}</div>`;
-            updateProgress();
+        <!-- Progress Bar -->
+        <div class="bg-white rounded-lg p-4 shadow-sm">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="font-semibold">Progress</span>
+                <span id="progressText">0/40</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { getQuestionsByExam } from './js/questions.js';
+
+        let questions = [];
+        let currentIndex = 0;
+        const examType = new URLSearchParams(window.location.search).get('exam') || 'jamb';
+
+        async function init() {
+            questions = await getQuestionsByExam(examType);
+            if (questions.length > 0) {
+                displayQuestion();
+            } else {
+                document.getElementById('questionDisplay').innerHTML = '<p class="text-red-600">No questions found</p>';
+            }
         }
 
-        function updateProgress() {
-            const progressTracker = document.getElementById('progress-tracker');
-            progressTracker.innerHTML = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        function displayQuestion() {
+            if (questions.length === 0) return;
+            
+            const q = questions[currentIndex];
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+            document.getElementById('questionText').textContent = q.question || q.text;
+            document.getElementById('solutionText').textContent = q.solution || q.explanation || 'Solution not available';
+            document.getElementById('progressText').textContent = `${currentIndex + 1}/${questions.length}`;
+            document.getElementById('progressBar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+
+            // Display image if available
+            if (q.image) {
+                document.getElementById('questionImage').src = q.image;
+                document.getElementById('questionImage').classList.remove('hidden');
+            } else {
+                document.getElementById('questionImage').classList.add('hidden');
+            }
+
+            // Display options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            if (q.options && q.options.length > 0) {
+                q.options.forEach((opt, idx) => {
+                    const isCorrect = idx === q.correctAnswerIndex;
+                    const div = document.createElement('div');
+                    div.className = `study-option ${isCorrect ? 'correct' : ''}`;
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-lg w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm">
+                                ${String.fromCharCode(65 + idx)}
+                            </span>
+                            <span class="flex-1">${opt}</span>
+                            ${isCorrect ? '<i class="fas fa-check-circle text-green-600 text-lg"></i>' : ''}
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentIndex === 0;
+            document.getElementById('nextBtn').disabled = currentIndex === questions.length - 1;
         }
 
-        document.getElementById('prev-btn').addEventListener('click', () => {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                displayQuestion(currentQuestionIndex);
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                displayQuestion();
             }
         });
 
-        document.getElementById('next-btn').addEventListener('click', () => {
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                displayQuestion(currentQuestionIndex);
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayQuestion();
             }
         });
 
-        function startTimer() {
-            timer = setInterval(() => {
-                seconds++;
-                document.getElementById('time').innerText = seconds;
-            }, 1000);
-        }
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentIndex < questions.length - 1) {
+                currentIndex++;
+                displayQuestion();
+            } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                currentIndex--;
+                displayQuestion();
+            }
+        });
 
-        window.onload = () => {
-            displayQuestion(currentQuestionIndex);
-            startTimer();
-        };
+        init();
     </script>
 </body>
 </html>
