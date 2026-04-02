@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAEC Study Mode</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>WAEC Study Mode</h1>
+    <div id="questions-container"></div>
+    <button id="prev-button">Previous</button>
+    <button id="next-button">Next</button>
+    <button id="view-answers-button">View Answers</button>
+    <div id="solution-display" style="display: none;"></div>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            // Your Firebase Config
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const questionsContainer = document.getElementById('questions-container');
+        let questions = [];
+        let currentQuestionIndex = 0;
+
+        function loadQuestions() {
+            // Load questions from Firebase
+            database.ref('questions/waec').once('value').then(snapshot => {
+                questions = snapshot.val();
+                displayQuestion();
+            });
+        }
+
+        function displayQuestion() {
+            if (questions.length > 0) {
+                const question = questions[currentQuestionIndex];
+                questionsContainer.innerHTML = `<h2>${question.question}</h2>`; // Add more HTML for answers
+            }
+        }
+
+        document.getElementById('next-button').onclick = function() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= questions.length) currentQuestionIndex = questions.length - 1;
+            displayQuestion();
+        };
+
+        document.getElementById('prev-button').onclick = function() {
+            currentQuestionIndex--;
+            if (currentQuestionIndex < 0) currentQuestionIndex = 0;
+            displayQuestion();
+        };
+
+        document.getElementById('view-answers-button').onclick = function() {
+            const answer = questions[currentQuestionIndex].answer; // Assuming each question has an 'answer' field
+            document.getElementById('solution-display').innerText = answer;
+            document.getElementById('solution-display').style.display = 'block';
+        };
+
+        window.onload = loadQuestions;
+    </script>
+</body>
+</html>
