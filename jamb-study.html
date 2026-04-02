@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMB Study Questions</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .question { margin-bottom: 20px; }
+        .answer { display: none; margin-top: 10px; }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>JAMB Study Questions</h1>
+    <div id="questions"></div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function loadQuestions() {
+            const questionsDiv = document.getElementById('questions');
+            const snapshot = await db.collection('jamb_questions').get();
+            snapshot.forEach(doc => {
+                const questionData = doc.data();
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `<p><strong>Q:</strong> ${questionData.question}</p>`;
+                const answerButton = document.createElement('button');
+                answerButton.innerText = 'View Answer';
+                answerButton.onclick = () => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'answer';
+                    answerDiv.innerHTML = `<strong>Answer:</strong> ${questionData.answer} <br><strong>Solution:</strong> ${questionData.solution}`;
+                    questionDiv.appendChild(answerDiv);
+                    answerDiv.style.display = 'block';
+                };
+                questionDiv.appendChild(answerButton);
+                questionsDiv.appendChild(questionDiv);
+            });
+        }
+
+        loadQuestions();
+    </script>
+</body>
+</html>
